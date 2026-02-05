@@ -57,6 +57,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "status-ok": {
+          DEFAULT: "hsl(var(--status-ok))",
+          foreground: "hsl(var(--status-ok-foreground))",
+        },
+        "status-warning": {
+          DEFAULT: "hsl(var(--status-warning))",
+          foreground: "hsl(var(--status-warning-foreground))",
+        },
+        "status-error": {
+          DEFAULT: "hsl(var(--status-error))",
+          foreground: "hsl(var(--status-error-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
