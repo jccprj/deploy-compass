@@ -1,201 +1,131 @@
 
 
-# Deploy Visibility - Implementation Plan
+# Promote to Production -- Implementation Plan
 
-A commit-centric deployment visualization tool for microservices architecture, enabling developers to track Jira features through environments and detect dependency drift.
+## Overview
 
----
-
-## 🎯 Overview
-
-**Purpose**: Internal developer tool to visualize deployment status across QA, PREPROD, and PROD environments, with seamless navigation between Jira Issues and Services.
-
-**Key Capabilities**:
-- Track which Jira features are fully deployed to production
-- See exactly what commit is running in each service/environment
-- Instantly detect dependency incompatibilities
-- Navigate between Jira-centric and Service-centric views
+Add a new "Promote to PROD" screen that lets developers create a safe, deterministic production deployment change. The screen walks through a guided flow: select scope (Jira or Service), analyze impact, review an ordered execution plan, simulate the resulting PROD state, and finalize with metadata.
 
 ---
 
-## 🏗️ Application Structure
+## What Changes
 
-### Global Shell
-- **Header** with app title "Deploy Visibility"
-- **Segmented control** to switch between Jira View and Service View
-- **Global search** supporting Jira keys, service names, and commit SHAs
-- Clean, developer-focused design with monospace fonts for commits
+### 1. New Types
 
----
+Add promotion-specific types to `src/types/deployment.ts`:
 
-## 📱 Screen 1: Jira Issue List
+- `PromotionScope`: `'jira' | 'service'`
+- `ResolvedCommit`: service + commit SHA resolved from PREPROD
+- `ValidationCheck`: label + status (pass/warn/fail) + optional message
+- `ExecutionStep`: order, service, commit, action type (Promote), reason (Requested / Dependency)
+- `ExpectedProdState`: service, commit, compatibility status, changed flag
+- `ChangeMetadata`: title, linked Jira, risk level, rollback strategy
 
-**Route**: `/jira`
+### 2. Mock Data and API Functions
 
-A table showing all Jira Issues and their deployment progress across environments.
+Extend `src/lib/mock-data.ts` and `src/lib/api.ts`:
 
-| Column | Description |
-|--------|-------------|
-| Jira Key | Clickable link to issue detail |
-| Title | Issue title |
-| Type | Bug, Story, Task, etc. |
-| Status | Jira workflow status |
-| QA / PREPROD / PROD | Status icons per environment |
+- `fetchPreprodCommitsForJira(jiraKey)` -- returns commits deployed in PREPROD for a Jira issue
+- `fetchPreprodCommitForService(serviceName)` -- returns the effective PREPROD commit for a service
+- `analyzeProductionImpact(commits)` -- returns validation checks, execution plan, and expected PROD state
+- `createProductionChange(plan, metadata)` -- simulates change creation (returns success)
 
-**Status Icons**:
-- 🟢 Green: All commits deployed, dependencies OK
-- 🟡 Yellow/Warning: Incomplete (missing deploy or dependency issue)
+The impact analysis mock will:
+- Validate all commits exist in PREPROD
+- Check dependency graph and detect PROD incompatibilities (e.g., orders-api needs auth-api@a1b2c3 but PROD has 9f8e7d)
+- Auto-add dependency promotions as earlier steps in the execution plan
+- Compute expected PROD state after execution
 
-**Interaction**: Click Jira Key → navigates to Issue Detail
+### 3. Navigation Update
 
----
+**ViewToggle** (`src/components/ViewToggle.tsx`): Add a third option -- "Promote to PROD" -- styled with a highlighted/accent appearance to distinguish it from the read-only views.
 
-## 📱 Screen 2: Jira Issue Detail
+**AppShell** (`src/components/AppShell.tsx`): Update the view change handler to support routing to `/promote`. Update the `currentView` logic to detect the `/promote` path.
 
-**Route**: `/jira/:key`
+**App.tsx**: Add route `/promote` pointing to the new `PromoteToProdPage`.
 
-Shows how a single Jira Issue is deployed across all affected services.
+### 4. New Page: `src/pages/PromoteToProdPage.tsx`
 
-**Header Section**:
-- Jira Key + Title
-- Issue type badge
-- Workflow status
+A single-page guided flow with six visual sections. The page uses local React state to manage the progression (scope selection, analysis triggered, change created).
 
-**Service-Commits Table**:
-| Column | Description |
-|--------|-------------|
-| Service | Clickable service name |
-| Commits | Vertical list (oldest → newest) with SHA + date |
-| QA / PREPROD / PROD | Status icons aligned with each commit |
+#### Section 1 -- Fixed Context (always visible)
+- Two locked badges: "Source: PREPROD" and "Target: PROD"
+- Short explanatory text: "Production promotions are always sourced from PREPROD."
 
-**Status Icons per Commit**:
-- 🟢 Deployed, dependencies OK
-- ⚠️ Deployed, dependency incompatibility
-- ❌ Not deployed
+#### Section 2 -- Promotion Scope
+- Radio group: "Jira Issue" or "Service"
+- **Jira path**: Autocomplete selector filtering `mockJiraIssues`. After selection, display a read-only card listing commits deployed in PREPROD for that issue (service + SHA with checkmark icons). Tooltip explaining only PREPROD commits are eligible.
+- **Service path**: Service selector (dropdown of services with PREPROD commits). Shows the single effective PREPROD commit in a read-only card.
+- Primary button: "Analyze Production Impact" -- disabled until a valid selection is made.
 
-**Interactions**:
-- Click service name → navigates to Service Detail
-- Click commit SHA or status icon → opens dependency popover
+#### Section 3 -- Pre-flight Validation (appears after analysis)
+- List of validation checks with status icons:
+  - CheckCircle (green) for passed checks
+  - AlertTriangle (amber) for warnings
+  - XCircle (red) for blockers
+- Example checks: "Commit exists in PREPROD", "Dependency graph resolved", "PROD dependency incompatibility detected" (with detail message)
 
----
+#### Section 4 -- Execution Plan (appears after analysis)
+- Ordered table with columns: #, Service, Commit (monospace), Action, Reason
+- Dependency-driven rows labeled "Dependency" in the Reason column
+- User-requested rows labeled "Requested"
+- Order is read-only and not editable
+- Visual note: "Execution order is mandatory and cannot be changed."
 
-## 📱 Screen 3: Service Selection
+#### Section 5 -- Expected PROD State (appears after analysis)
+- Table showing each affected service with: Service, Commit (monospace), Status icon
+- Unchanged services shown as "unchanged" in muted text
+- If any incompatibility remains, show a red alert banner and disable the final CTA
 
-**Route**: `/services`
+#### Section 6 -- Change Metadata (appears after analysis, if no blockers)
+- Title input (pre-filled: "Promote {JIRA-KEY} to PROD" or "Promote {service} to PROD")
+- Linked Jira input (pre-filled if Jira scope)
+- Risk level select: Low / Medium / High
+- Rollback strategy select (required): "Promote previous PROD commit" / "Custom"
+- Final CTA: "Create Production Change" -- disabled if rollback strategy is empty or blockers exist
+- On click: shows success toast and resets the form
 
-Card grid showing all services with their effective commit per environment.
+### 5. Component Breakdown
 
-**Service Card Contents**:
-- Service name (prominently displayed)
-- Three environment rows (QA, PREPROD, PROD), each showing:
-  - Environment label
-  - Effective commit SHA (monospace)
-  - Status badge (✅ OK, ⚠️ Incompatible, or ❌ None)
+The page will be split into focused sub-components inside `src/components/promote/`:
 
-**Interaction**: Click card → navigates to Service Detail
-
----
-
-## 📱 Screen 4: Service Detail
-
-**Route**: `/services/:serviceName`
-
-Commit-first operational view for a single service.
-
-**Header Section**:
-- Service name
-- Repository URL (as clickable link)
-
-**Effective Commits Summary**:
-Three cards/badges showing current running commit per environment with dependency status.
-
-**Commits Table**:
-| Column | Description |
-|--------|-------------|
-| Commit SHA | Monospace, clickable |
-| Jira Issue | Clickable link to issue |
-| Created | Timestamp |
-| QA / PREPROD / PROD | Status icons |
-
-**Status Icons**:
-- 🟢 Deployed, dependencies OK
-- ⚠️ Deployed, dependency incompatible
-- ❌ Not deployed
-
-Commits sorted newest first.
-
-**Interaction**: Click status icon or commit → opens dependency popover
+| Component | Responsibility |
+|-----------|---------------|
+| `PromotionContext.tsx` | Locked source/target badges |
+| `ScopeSelector.tsx` | Radio group + Jira/Service selectors + resolved commits display |
+| `ValidationChecks.tsx` | Pre-flight check list with icons |
+| `ExecutionPlan.tsx` | Ordered execution table |
+| `ExpectedProdState.tsx` | Simulated PROD state table |
+| `ChangeMetadataForm.tsx` | Title, Jira link, risk, rollback, and final CTA |
 
 ---
 
-## 🔍 Dependency Popover
+## Technical Details
 
-Appears when clicking any status icon or commit SHA.
-
-**Contents**:
-- Commit SHA
-- Environment name
-- Deployment timestamp
-- Pipeline reference/ID
-- **Dependency table**:
-  - Service name
-  - Expected commit
-  - Actual commit
-  - Status indicator (✅ OK or ❌ Incompatible)
+- All data fetching uses the existing mock API pattern (async functions with simulated delay)
+- React Query is used for the Jira/Service autocomplete data fetching
+- The "Analyze Production Impact" action triggers a local state transition (not a route change) to reveal sections 3-6
+- Form state managed with React `useState` (no need for react-hook-form for this guided flow)
+- Reuses existing UI components: `Card`, `Badge`, `Button`, `Table`, `Select`, `Input`, `RadioGroup`, `Tooltip`, and `StatusIcon`
+- Monospace styling applied to all commit SHAs via the existing `font-mono` class
 
 ---
 
-## 🎨 Design Specifications
+## Files to Create/Modify
 
-**Typography**:
-- Monospace font for all commit SHAs
-- Clean sans-serif for UI elements
-
-**Colors** (subtle, not heavy dashboard):
-- Green (#22c55e): Deployed, healthy
-- Yellow/Amber (#f59e0b): Deployed with dependency issues
-- Red (#ef4444): Not deployed
-- Neutral grays for structure
-
-**Icons** preferred over text for statuses:
-- CheckCircle, AlertTriangle, XCircle from Lucide
-
-**Layout**:
-- Clear visual alignment between commits and their environment statuses
-- Consistent table structures across all views
-- Responsive design for various screen sizes
-
----
-
-## 🧩 Key Components to Build
-
-1. **AppShell** - Header with navigation and global search
-2. **ViewToggle** - Segmented control for Jira/Service views
-3. **StatusIcon** - Reusable status indicator component
-4. **EnvironmentColumns** - Consistent environment header layout
-5. **CommitCell** - Monospace commit display with popover trigger
-6. **DependencyPopover** - Detailed dependency information
-7. **ServiceCard** - Card for service selection grid
-8. **JiraIssueTable** - Main table for Jira view
-9. **ServiceCommitsTable** - Table for issue detail view
-10. **GlobalSearch** - Search with Jira/Service/Commit filtering
-
----
-
-## 📊 Data Handling
-
-- **Mock API layer** with realistic sample data matching your API specs
-- **React Query** for data fetching and caching
-- **React Router** for navigation between views
-- Easy to swap mock data for real API endpoints later
-
----
-
-## ✅ What Users Can Answer
-
-After implementation, users will be able to:
-- "Which Jira features are fully in PROD?" → Jira List with green PROD column
-- "What is actually running in this service?" → Service Detail effective commits
-- "Why does this commit have a warning?" → Dependency popover with drift details
-- "Which commits need deployment?" → Red icons in environment columns
+| File | Action |
+|------|--------|
+| `src/types/deployment.ts` | Add promotion types |
+| `src/lib/mock-data.ts` | Add promotion mock data |
+| `src/lib/api.ts` | Add promotion API functions |
+| `src/components/ViewToggle.tsx` | Add "Promote to PROD" option |
+| `src/components/AppShell.tsx` | Handle `/promote` route in nav logic |
+| `src/App.tsx` | Add `/promote` route |
+| `src/components/promote/PromotionContext.tsx` | New |
+| `src/components/promote/ScopeSelector.tsx` | New |
+| `src/components/promote/ValidationChecks.tsx` | New |
+| `src/components/promote/ExecutionPlan.tsx` | New |
+| `src/components/promote/ExpectedProdState.tsx` | New |
+| `src/components/promote/ChangeMetadataForm.tsx` | New |
+| `src/pages/PromoteToProdPage.tsx` | New |
 
