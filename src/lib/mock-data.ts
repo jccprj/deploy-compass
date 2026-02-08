@@ -672,11 +672,27 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
   // Build execution plan: dependencies first, then requested
   let order = 1;
   for (const [, dep] of autoAdded) {
-    steps.push({ order: order++, serviceName: dep.serviceName, sha: dep.sha, action: 'Promote', reason: 'Dependency' });
+    steps.push({
+      order: order++,
+      serviceName: dep.serviceName,
+      sha: dep.sha,
+      action: 'Promote',
+      reason: 'Dependency',
+      deployAction: `deploy ${dep.sha} → ${dep.serviceName} (PROD)`,
+      jiraKeys: dep.jiraKey ? [dep.jiraKey] : [],
+    });
   }
   for (const rc of requestedCommits) {
     if (!autoAdded.has(rc.serviceName)) {
-      steps.push({ order: order++, serviceName: rc.serviceName, sha: rc.sha, action: 'Promote', reason: 'Requested' });
+      steps.push({
+        order: order++,
+        serviceName: rc.serviceName,
+        sha: rc.sha,
+        action: 'Promote',
+        reason: 'Requested',
+        deployAction: `deploy ${rc.sha} → ${rc.serviceName} (PROD)`,
+        jiraKeys: rc.jiraKey ? [rc.jiraKey] : [],
+      });
     }
   }
 

@@ -11,7 +11,7 @@ export function ExecutionPlan({ steps }: ExecutionPlanProps) {
     <div className="space-y-3">
       <div className="space-y-1">
         <h3 className="text-sm font-medium text-foreground">Production Execution Plan</h3>
-        <p className="text-xs text-muted-foreground">Execution order is mandatory and cannot be changed.</p>
+        <p className="text-xs text-muted-foreground">Services that need to be promoted to PROD, in order.</p>
       </div>
       <Table>
         <TableHeader>
@@ -19,20 +19,21 @@ export function ExecutionPlan({ steps }: ExecutionPlanProps) {
             <TableHead className="w-12">#</TableHead>
             <TableHead>Service</TableHead>
             <TableHead>Commit</TableHead>
-            <TableHead>Action</TableHead>
+            <TableHead>Deploy Action</TableHead>
             <TableHead>Reason</TableHead>
+            <TableHead>Jira</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {steps.map(step => (
             <TableRow key={step.order}>
               <TableCell className="font-medium">{step.order}</TableCell>
-              <TableCell>{step.serviceName}</TableCell>
+              <TableCell className="font-medium">{step.serviceName}</TableCell>
               <TableCell>
                 <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{step.sha}</code>
               </TableCell>
               <TableCell>
-                <Badge variant="outline" className="text-xs">{step.action}</Badge>
+                <code className="text-xs text-muted-foreground">{step.deployAction}</code>
               </TableCell>
               <TableCell>
                 <Badge
@@ -41,6 +42,13 @@ export function ExecutionPlan({ steps }: ExecutionPlanProps) {
                 >
                   {step.reason === 'Dependency' ? 'Auto-added' : 'Requested'}
                 </Badge>
+              </TableCell>
+              <TableCell>
+                {step.jiraKeys.length > 0 ? (
+                  <span className="text-xs text-muted-foreground">{step.jiraKeys.join(', ')}</span>
+                ) : (
+                  <span className="text-xs text-muted-foreground italic">—</span>
+                )}
               </TableCell>
             </TableRow>
           ))}

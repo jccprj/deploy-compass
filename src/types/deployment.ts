@@ -87,6 +87,7 @@ export type PromotionScope = 'jira' | 'service';
 export interface ResolvedCommit {
   serviceName: string;
   sha: string;
+  jiraKey?: string;
 }
 
 export interface ValidationCheck {
@@ -101,6 +102,8 @@ export interface ExecutionStep {
   sha: string;
   action: 'Promote';
   reason: 'Requested' | 'Dependency';
+  deployAction: string; // e.g. "Deploy e7f8g9 to PROD"
+  jiraKeys: string[];
 }
 
 export interface ExpectedProdState {
