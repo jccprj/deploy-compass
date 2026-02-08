@@ -4,6 +4,9 @@ import {
   mockServices,
   mockServiceDetails,
   getCommitEnvironmentDetail,
+  getPreprodCommitsForJira,
+  getPreprodCommitForService,
+  computeImpactAnalysis,
 } from './mock-data';
 import type {
   JiraIssue,
@@ -12,6 +15,10 @@ import type {
   ServiceDetail,
   CommitEnvironmentDetail,
   Environment,
+  ResolvedCommit,
+  ImpactAnalysis,
+  ExecutionStep,
+  ChangeMetadata,
 } from '@/types/deployment';
 
 // Simulated API delay
@@ -48,6 +55,33 @@ export async function fetchCommitEnvironmentDetail(
 ): Promise<CommitEnvironmentDetail | null> {
   await delay(150);
   return getCommitEnvironmentDetail(sha, env);
+}
+
+// API 6 — Promotion: PREPROD commits for a Jira issue
+export async function fetchPreprodCommitsForJira(jiraKey: string): Promise<ResolvedCommit[]> {
+  await delay(200);
+  return getPreprodCommitsForJira(jiraKey);
+}
+
+// API 7 — Promotion: PREPROD commit for a service
+export async function fetchPreprodCommitForService(serviceName: string): Promise<ResolvedCommit | null> {
+  await delay(150);
+  return getPreprodCommitForService(serviceName);
+}
+
+// API 8 — Promotion: Analyze production impact
+export async function analyzeProductionImpact(commits: ResolvedCommit[]): Promise<ImpactAnalysis> {
+  await delay(400);
+  return computeImpactAnalysis(commits);
+}
+
+// API 9 — Promotion: Create production change
+export async function createProductionChange(
+  _plan: ExecutionStep[],
+  _metadata: ChangeMetadata
+): Promise<{ success: boolean }> {
+  await delay(300);
+  return { success: true };
 }
 
 // Search helper

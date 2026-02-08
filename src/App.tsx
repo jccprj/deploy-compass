@@ -8,6 +8,7 @@ import JiraListPage from "./pages/JiraListPage";
 import JiraDetailPage from "./pages/JiraDetailPage";
 import ServiceListPage from "./pages/ServiceListPage";
 import ServiceDetailPage from "./pages/ServiceDetailPage";
+import PromoteToProdPage from "./pages/PromoteToProdPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/jira/:key" element={<JiraDetailPage />} />
             <Route path="/services" element={<ServiceListPage />} />
             <Route path="/services/:serviceName" element={<ServiceDetailPage />} />
+            <Route path="/promote" element={<PromoteToProdPage />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

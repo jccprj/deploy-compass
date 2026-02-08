@@ -548,3 +548,160 @@ export const mockCommitDetails: Record<string, CommitEnvironmentDetail> = {
 export function getCommitEnvironmentDetail(sha: string, env: string): CommitEnvironmentDetail | null {
   return mockCommitDetails[`${sha}-${env}`] || null;
 }
+
+// ==========================================
+// Promotion Mock Data & Logic
+// ==========================================
+
+// Dependency graph: service -> list of services it depends on
+export const mockDependencyGraph: Record<string, string[]> = {
+  'orders-api': ['auth-api', 'catalog-api'],
+  'shipping-api': ['orders-api'],
+  'payments-api': ['orders-api'],
+  'checkout-api': ['orders-api', 'payments-api'],
+  'auth-api': [],
+  'users-api': ['auth-api'],
+  'inventory-api': ['catalog-api'],
+  'catalog-api': [],
+};
+
+// Expected dependency commits: what commit a service expects from its deps in PREPROD
+export const mockExpectedDependencies: Record<string, Record<string, string>> = {
+  'orders-api': { 'auth-api': 'a1b2c3', 'catalog-api': 'v4w5x6' },
+  'shipping-api': { 'orders-api': 'e7f8g9' },
+  'payments-api': { 'orders-api': 'd4e5f6' },
+  'checkout-api': { 'orders-api': 'e7f8g9', 'payments-api': 'f1g2h3' },
+  'auth-api': {},
+  'users-api': { 'auth-api': 'm4n5o6' },
+  'inventory-api': { 'catalog-api': 'v4w5x6' },
+  'catalog-api': {},
+};
+
+import type {
+  ResolvedCommit,
+  ValidationCheck,
+  ExecutionStep,
+  ExpectedProdState,
+  ImpactAnalysis,
+} from '@/types/deployment';
+
+export function getPreprodCommitsForJira(jiraKey: string): ResolvedCommit[] {
+  const detail = mockJiraIssueDetails[jiraKey];
+  if (!detail) return [];
+  const resolved: ResolvedCommit[] = [];
+  for (const svc of detail.services) {
+    for (const commit of svc.commits) {
+      if (commit.environments.PREPROD?.deploymentStatus === 'DEPLOYED') {
+        resolved.push({ serviceName: svc.serviceName, sha: commit.sha });
+      }
+    }
+  }
+  // Deduplicate: keep latest commit per service
+  const byService = new Map<string, ResolvedCommit>();
+  for (const r of resolved) {
+    byService.set(r.serviceName, r);
+  }
+  return Array.from(byService.values());
+}
+
+export function getPreprodCommitForService(serviceName: string): ResolvedCommit | null {
+  const svc = mockServices.find(s => s.serviceName === serviceName);
+  if (!svc || !svc.effectiveCommits.PREPROD) return null;
+  return { serviceName, sha: svc.effectiveCommits.PREPROD.sha };
+}
+
+export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): ImpactAnalysis {
+  const checks: ValidationCheck[] = [];
+  const steps: ExecutionStep[] = [];
+  const autoAdded = new Map<string, ResolvedCommit>();
+
+  // Check 1: all commits exist in PREPROD
+  let allInPreprod = true;
+  for (const rc of requestedCommits) {
+    const svc = mockServices.find(s => s.serviceName === rc.serviceName);
+    if (!svc?.effectiveCommits.PREPROD || svc.effectiveCommits.PREPROD.sha !== rc.sha) {
+      allInPreprod = false;
+    }
+  }
+  checks.push({
+    label: 'All commits exist in PREPROD',
+    status: allInPreprod ? 'pass' : 'fail',
+    message: allInPreprod ? undefined : 'One or more commits are not deployed in PREPROD.',
+  });
+
+  // Check 2: resolve dependency graph
+  let hasIncompatibility = false;
+  for (const rc of requestedCommits) {
+    const deps = mockExpectedDependencies[rc.serviceName] || {};
+    for (const [depService, expectedSha] of Object.entries(deps)) {
+      const depProd = mockServices.find(s => s.serviceName === depService)?.effectiveCommits.PROD;
+      const isAlreadyRequested = requestedCommits.some(r => r.serviceName === depService);
+      if (!isAlreadyRequested && (!depProd || depProd.sha !== expectedSha)) {
+        // Check if dep is in PREPROD with the needed commit
+        const depPreprod = mockServices.find(s => s.serviceName === depService)?.effectiveCommits.PREPROD;
+        if (depPreprod && depPreprod.sha === expectedSha) {
+          autoAdded.set(depService, { serviceName: depService, sha: expectedSha });
+          hasIncompatibility = true;
+        } else if (depPreprod) {
+          autoAdded.set(depService, { serviceName: depService, sha: depPreprod.sha });
+          hasIncompatibility = true;
+        }
+      }
+    }
+  }
+
+  checks.push({
+    label: 'Dependency graph resolved',
+    status: 'pass',
+  });
+
+  if (hasIncompatibility) {
+    const depDetails = Array.from(autoAdded.entries())
+      .map(([svc, rc]) => {
+        const prodSha = mockServices.find(s => s.serviceName === svc)?.effectiveCommits.PROD?.sha || 'none';
+        return `${svc} expected @${rc.sha}, PROD has @${prodSha}`;
+      })
+      .join('; ');
+    checks.push({
+      label: 'PROD dependency incompatibility detected',
+      status: 'warn',
+      message: depDetails,
+    });
+  }
+
+  // Build execution plan: dependencies first, then requested
+  let order = 1;
+  for (const [, dep] of autoAdded) {
+    steps.push({ order: order++, serviceName: dep.serviceName, sha: dep.sha, action: 'Promote', reason: 'Dependency' });
+  }
+  for (const rc of requestedCommits) {
+    if (!autoAdded.has(rc.serviceName)) {
+      steps.push({ order: order++, serviceName: rc.serviceName, sha: rc.sha, action: 'Promote', reason: 'Requested' });
+    }
+  }
+
+  // Expected PROD state
+  const prodState: ExpectedProdState[] = [];
+  const changedServices = new Set([...autoAdded.keys(), ...requestedCommits.map(r => r.serviceName)]);
+  
+  for (const svc of mockServices) {
+    if (changedServices.has(svc.serviceName)) {
+      const newSha = autoAdded.get(svc.serviceName)?.sha 
+        || requestedCommits.find(r => r.serviceName === svc.serviceName)?.sha 
+        || '';
+      prodState.push({ serviceName: svc.serviceName, sha: newSha, status: 'compatible', changed: true });
+    } else {
+      const prodCommit = svc.effectiveCommits.PROD;
+      prodState.push({
+        serviceName: svc.serviceName,
+        sha: prodCommit?.sha || 'none',
+        status: 'compatible',
+        changed: false,
+      });
+    }
+  }
+
+  const hasBlockers = checks.some(c => c.status === 'fail');
+
+  return { validationChecks: checks, executionPlan: steps, expectedProdState: prodState, hasBlockers };
+}
