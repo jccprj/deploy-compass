@@ -7,14 +7,15 @@ export function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const currentView = location.pathname.startsWith('/services') ? 'services' : 'jira';
+  const currentView = location.pathname.startsWith('/promote')
+    ? 'promote'
+    : location.pathname.startsWith('/services')
+      ? 'services'
+      : 'jira';
 
-  const handleViewChange = (view: 'jira' | 'services') => {
-    if (view === 'jira') {
-      navigate('/jira');
-    } else {
-      navigate('/services');
-    }
+  const handleViewChange = (view: 'jira' | 'services' | 'promote') => {
+    const routes = { jira: '/jira', services: '/services', promote: '/promote' };
+    navigate(routes[view]);
   };
 
   return (

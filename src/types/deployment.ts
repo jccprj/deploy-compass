@@ -80,3 +80,49 @@ export interface CommitEnvironmentDetail {
   deployedAt: string;
   dependencies: Dependency[];
 }
+
+// Promotion types
+export type PromotionScope = 'jira' | 'service';
+
+export interface ResolvedCommit {
+  serviceName: string;
+  sha: string;
+}
+
+export interface ValidationCheck {
+  label: string;
+  status: 'pass' | 'warn' | 'fail';
+  message?: string;
+}
+
+export interface ExecutionStep {
+  order: number;
+  serviceName: string;
+  sha: string;
+  action: 'Promote';
+  reason: 'Requested' | 'Dependency';
+}
+
+export interface ExpectedProdState {
+  serviceName: string;
+  sha: string;
+  status: 'compatible' | 'incompatible';
+  changed: boolean;
+}
+
+export type RiskLevel = 'Low' | 'Medium' | 'High';
+export type RollbackStrategy = 'previous' | 'custom';
+
+export interface ChangeMetadata {
+  title: string;
+  linkedJira: string;
+  riskLevel: RiskLevel;
+  rollbackStrategy: RollbackStrategy;
+}
+
+export interface ImpactAnalysis {
+  validationChecks: ValidationCheck[];
+  executionPlan: ExecutionStep[];
+  expectedProdState: ExpectedProdState[];
+  hasBlockers: boolean;
+}

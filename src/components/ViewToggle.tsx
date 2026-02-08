@@ -1,8 +1,9 @@
 import { cn } from '@/lib/utils';
+import { Rocket } from 'lucide-react';
 
 interface ViewToggleProps {
-  value: 'jira' | 'services';
-  onChange: (value: 'jira' | 'services') => void;
+  value: 'jira' | 'services' | 'promote';
+  onChange: (value: 'jira' | 'services' | 'promote') => void;
 }
 
 export function ViewToggle({ value, onChange }: ViewToggleProps) {
@@ -29,6 +30,18 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
         )}
       >
         Service View
+      </button>
+      <button
+        onClick={() => onChange('promote')}
+        className={cn(
+          'px-4 py-2 text-sm font-medium rounded-md transition-all gap-1.5 inline-flex items-center',
+          value === 'promote'
+            ? 'bg-primary text-primary-foreground shadow-sm'
+            : 'text-primary hover:bg-primary/10'
+        )}
+      >
+        <Rocket className="h-3.5 w-3.5" />
+        Promote to PROD
       </button>
     </div>
   );
