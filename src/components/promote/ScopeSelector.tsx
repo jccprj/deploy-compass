@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle, Info } from 'lucide-react';
+import { CheckCircle, Info, X } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { fetchJiraIssues, fetchServices, fetchPreprodCommitsForJira, fetchPreprodCommitForService } from '@/lib/api';
@@ -17,7 +18,7 @@ interface ScopeSelectorProps {
 
 export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
   const [scope, setScope] = useState<PromotionScope | ''>('');
-  const [selectedJira, setSelectedJira] = useState('');
+  const [selectedJiras, setSelectedJiras] = useState<string[]>([]);
   const [selectedService, setSelectedService] = useState('');
 
   const { data: jiraIssues } = useQuery({
@@ -30,10 +31,21 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
     queryFn: fetchServices,
   });
 
-  const { data: jiraCommits } = useQuery({
-    queryKey: ['preprodCommits', 'jira', selectedJira],
-    queryFn: () => fetchPreprodCommitsForJira(selectedJira),
-    enabled: scope === 'jira' && !!selectedJira,
+  // Fetch commits for all selected Jiras
+  const jiraQueries = useQuery({
+    queryKey: ['preprodCommits', 'jira', selectedJiras],
+    queryFn: async () => {
+      const results = await Promise.all(selectedJiras.map(k => fetchPreprodCommitsForJira(k)));
+      // Merge and deduplicate by service (keep latest), tag with jiraKey
+      const byService = new Map<string, ResolvedCommit>();
+      selectedJiras.forEach((jiraKey, i) => {
+        for (const rc of results[i]) {
+          byService.set(rc.serviceName, { ...rc, jiraKey });
+        }
+      });
+      return Array.from(byService.values());
+    },
+    enabled: scope === 'jira' && selectedJiras.length > 0,
   });
 
   const { data: serviceCommit } = useQuery({
@@ -43,12 +55,23 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
   });
 
   const servicesWithPreprod = services?.filter(s => s.effectiveCommits.PREPROD !== null) || [];
+  const jiraCommits = jiraQueries.data || [];
 
-  const resolvedCommits = scope === 'jira' ? (jiraCommits || []) : (serviceCommit ? [serviceCommit] : []);
+  const resolvedCommits = scope === 'jira' ? jiraCommits : (serviceCommit ? [serviceCommit] : []);
   const canAnalyze = resolvedCommits.length > 0;
 
-  const handleAnalyze = () => {
-    if (canAnalyze) onAnalyze(resolvedCommits);
+  const availableJiras = useMemo(() => {
+    return jiraIssues?.filter(i => !selectedJiras.includes(i.key)) || [];
+  }, [jiraIssues, selectedJiras]);
+
+  const addJira = (key: string) => {
+    if (key && !selectedJiras.includes(key)) {
+      setSelectedJiras(prev => [...prev, key]);
+    }
+  };
+
+  const removeJira = (key: string) => {
+    setSelectedJiras(prev => prev.filter(k => k !== key));
   };
 
   return (
@@ -59,14 +82,14 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
           value={scope}
           onValueChange={(v) => {
             setScope(v as PromotionScope);
-            setSelectedJira('');
+            setSelectedJiras([]);
             setSelectedService('');
           }}
           className="flex gap-6"
         >
           <div className="flex items-center gap-2">
             <RadioGroupItem value="jira" id="scope-jira" />
-            <Label htmlFor="scope-jira" className="cursor-pointer">Jira Issue</Label>
+            <Label htmlFor="scope-jira" className="cursor-pointer">Jira Issues</Label>
           </div>
           <div className="flex items-center gap-2">
             <RadioGroupItem value="service" id="scope-service" />
@@ -77,12 +100,33 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
 
       {scope === 'jira' && (
         <div className="space-y-3">
-          <Select value={selectedJira} onValueChange={setSelectedJira}>
-            <SelectTrigger className="w-72">
-              <SelectValue placeholder="Select a Jira issue..." />
+          {/* Selected Jiras */}
+          {selectedJiras.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selectedJiras.map(key => {
+                const issue = jiraIssues?.find(i => i.key === key);
+                return (
+                  <Badge key={key} variant="secondary" className="gap-1 pr-1">
+                    {key}{issue ? ` — ${issue.title}` : ''}
+                    <button
+                      onClick={() => removeJira(key)}
+                      className="ml-1 rounded-full hover:bg-muted p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Add more */}
+          <Select value="" onValueChange={addJira}>
+            <SelectTrigger className="w-80">
+              <SelectValue placeholder="Add a Jira issue..." />
             </SelectTrigger>
             <SelectContent>
-              {jiraIssues?.map(issue => (
+              {availableJiras.map(issue => (
                 <SelectItem key={issue.key} value={issue.key}>
                   {issue.key} — {issue.title}
                 </SelectItem>
@@ -90,7 +134,7 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
             </SelectContent>
           </Select>
 
-          {jiraCommits && jiraCommits.length > 0 && (
+          {jiraCommits.length > 0 && (
             <Card className="bg-muted/30">
               <CardContent className="p-4 space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -110,14 +154,17 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
                     <span className="text-muted-foreground">{rc.serviceName}</span>
                     <span className="text-foreground">→</span>
                     <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{rc.sha}</code>
+                    {rc.jiraKey && (
+                      <span className="text-xs text-muted-foreground">({rc.jiraKey})</span>
+                    )}
                   </div>
                 ))}
               </CardContent>
             </Card>
           )}
 
-          {selectedJira && jiraCommits && jiraCommits.length === 0 && (
-            <p className="text-sm text-muted-foreground">No commits from this issue are deployed in PREPROD.</p>
+          {selectedJiras.length > 0 && jiraCommits.length === 0 && !jiraQueries.isLoading && (
+            <p className="text-sm text-muted-foreground">No commits from the selected issues are deployed in PREPROD.</p>
           )}
         </div>
       )}
@@ -152,7 +199,7 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
         </div>
       )}
 
-      <Button onClick={handleAnalyze} disabled={!canAnalyze || isAnalyzing}>
+      <Button onClick={() => canAnalyze && onAnalyze(resolvedCommits)} disabled={!canAnalyze || isAnalyzing}>
         {isAnalyzing ? 'Analyzing…' : 'Analyze Production Impact'}
       </Button>
     </div>
