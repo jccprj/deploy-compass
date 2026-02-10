@@ -93,7 +93,7 @@ export default function JiraListPage() {
                 </TableCell>
                 {ENVIRONMENTS.map((env) => (
                   <TableCell key={env} className="text-center">
-                    <StateIcon state={issue.environments[env].state} />
+                    <StateIcon state={issue.deployments[env]} />
                   </TableCell>
                 ))}
               </TableRow>

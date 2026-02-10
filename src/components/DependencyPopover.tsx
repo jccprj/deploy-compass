@@ -46,10 +46,19 @@ export function DependencyPopover({ sha, environment, children }: DependencyPopo
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Pipeline</span>
-                <span className="flex items-center gap-1">
-                  #{data.pipelineId}
-                  <ExternalLink className="h-3 w-3" />
-                </span>
+                {data.pipelineUrl ? (
+                  <a
+                    href={data.pipelineUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-primary hover:underline"
+                  >
+                    #{data.pipelineId}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                ) : (
+                  <span>#{data.pipelineId}</span>
+                )}
               </div>
             </div>
 

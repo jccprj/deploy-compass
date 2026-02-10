@@ -21,31 +21,75 @@ import type {
   ChangeMetadata,
 } from '@/types/deployment';
 
+// Toggle between mock data and real API
+const useMockData = false;
+
+// Base URL for the API
+const API_BASE_URL = 'http://localhost:5042';
+
 // Simulated API delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // API 1 — Jira Issues List
 export async function fetchJiraIssues(): Promise<JiraIssue[]> {
-  await delay(300);
-  return mockJiraIssues;
+  if (useMockData) {
+    await delay(300);
+    return mockJiraIssues;
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/jira/issues`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Jira issues: ${response.statusText}`);
+  }
+  return response.json();
 }
 
 // API 2 — Jira Issue Detail
 export async function fetchJiraIssueDetail(key: string): Promise<JiraIssueDetail | null> {
-  await delay(200);
-  return mockJiraIssueDetails[key] || null;
+  if (useMockData) {
+    await delay(200);
+    return mockJiraIssueDetails[key] || null;
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/jira/issues/${key}`);
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Jira issue detail: ${response.statusText}`);
+  }
+  return response.json();
 }
 
 // API 3 — Service Selection
 export async function fetchServices(): Promise<Service[]> {
-  await delay(300);
-  return mockServices;
+  if (useMockData) {
+    await delay(300);
+    return mockServices;
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/services`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch services: ${response.statusText}`);
+  }
+  return response.json();
 }
 
 // API 4 — Service Detail
 export async function fetchServiceDetail(serviceName: string): Promise<ServiceDetail | null> {
-  await delay(200);
-  return mockServiceDetails[serviceName] || null;
+  if (useMockData) {
+    await delay(200);
+    return mockServiceDetails[serviceName] || null;
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/services/${serviceName}`);
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`Failed to fetch service detail: ${response.statusText}`);
+  }
+  return response.json();
 }
 
 // API 5 — Commit Dependency Detail
@@ -53,8 +97,19 @@ export async function fetchCommitEnvironmentDetail(
   sha: string,
   env: Environment
 ): Promise<CommitEnvironmentDetail | null> {
-  await delay(150);
-  return getCommitEnvironmentDetail(sha, env);
+  if (useMockData) {
+    await delay(150);
+    return getCommitEnvironmentDetail(sha, env);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/commits/${sha}/environments/${env}`);
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`Failed to fetch commit environment detail: ${response.statusText}`);
+  }
+  return response.json();
 }
 
 // API 6 — Promotion: PREPROD commits for a Jira issue

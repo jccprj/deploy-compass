@@ -13,10 +13,11 @@ export const mockJiraIssues: JiraIssue[] = [
     title: 'Fix freight calculation',
     type: 'Bug',
     status: 'In Progress',
-    environments: {
-      QA: { state: 'OK' },
-      PREPROD: { state: 'OK' },
-      PROD: { state: 'INCOMPLETE' },
+    services: ['orders-api', 'shipping-api'],
+    deployments: {
+      QA: 'OK',
+      PPRD: 'OK',
+      PRD: 'INCOMPLETE',
     },
   },
   {
@@ -24,10 +25,11 @@ export const mockJiraIssues: JiraIssue[] = [
     title: 'Add payment retry logic',
     type: 'Story',
     status: 'Done',
-    environments: {
-      QA: { state: 'OK' },
-      PREPROD: { state: 'OK' },
-      PROD: { state: 'OK' },
+    services: ['payments-api'],
+    deployments: {
+      QA: 'OK',
+      PPRD: 'OK',
+      PRD: 'OK',
     },
   },
   {
@@ -35,10 +37,11 @@ export const mockJiraIssues: JiraIssue[] = [
     title: 'Improve checkout performance',
     type: 'Task',
     status: 'In Progress',
-    environments: {
-      QA: { state: 'OK' },
-      PREPROD: { state: 'INCOMPLETE' },
-      PROD: { state: 'INCOMPLETE' },
+    services: ['checkout-api'],
+    deployments: {
+      QA: 'OK',
+      PPRD: 'INCOMPLETE',
+      PRD: 'INCOMPLETE',
     },
   },
   {
@@ -46,10 +49,11 @@ export const mockJiraIssues: JiraIssue[] = [
     title: 'User authentication refactor',
     type: 'Epic',
     status: 'In Review',
-    environments: {
-      QA: { state: 'INCOMPLETE' },
-      PREPROD: { state: 'INCOMPLETE' },
-      PROD: { state: 'INCOMPLETE' },
+    services: ['auth-api', 'users-api'],
+    deployments: {
+      QA: 'INCOMPLETE',
+      PPRD: 'INCOMPLETE',
+      PRD: 'INCOMPLETE',
     },
   },
   {
@@ -57,10 +61,11 @@ export const mockJiraIssues: JiraIssue[] = [
     title: 'Fix inventory sync issue',
     type: 'Bug',
     status: 'Done',
-    environments: {
-      QA: { state: 'OK' },
-      PREPROD: { state: 'OK' },
-      PROD: { state: 'OK' },
+    services: ['inventory-api'],
+    deployments: {
+      QA: 'OK',
+      PPRD: 'OK',
+      PRD: 'OK',
     },
   },
 ];
@@ -81,8 +86,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
             createdAt: '2026-01-29',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+              PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+              PRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
             },
           },
           {
@@ -90,8 +95,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
             createdAt: '2026-01-30',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'INCOMPATIBLE' },
-              PROD: { deploymentStatus: 'NOT_DEPLOYED' },
+              PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'INCOMPATIBLE' },
+              PRD: { deploymentStatus: 'NOT_DEPLOYED' },
             },
           },
         ],
@@ -104,8 +109,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
             createdAt: '2026-01-28',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PROD: { deploymentStatus: 'NOT_DEPLOYED' },
+              PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+              PRD: { deploymentStatus: 'NOT_DEPLOYED' },
             },
           },
         ],
@@ -126,8 +131,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
             createdAt: '2026-01-25',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+              PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+              PRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
             },
           },
         ],
@@ -148,8 +153,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
             createdAt: '2026-01-31',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PREPROD: { deploymentStatus: 'NOT_DEPLOYED' },
-              PROD: { deploymentStatus: 'NOT_DEPLOYED' },
+              PPRD: { deploymentStatus: 'NOT_DEPLOYED' },
+              PRD: { deploymentStatus: 'NOT_DEPLOYED' },
             },
           },
         ],
@@ -170,8 +175,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
             createdAt: '2026-02-01',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'INCOMPATIBLE' },
-              PREPROD: { deploymentStatus: 'NOT_DEPLOYED' },
-              PROD: { deploymentStatus: 'NOT_DEPLOYED' },
+              PPRD: { deploymentStatus: 'NOT_DEPLOYED' },
+              PRD: { deploymentStatus: 'NOT_DEPLOYED' },
             },
           },
         ],
@@ -184,8 +189,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
             createdAt: '2026-02-01',
             environments: {
               QA: { deploymentStatus: 'NOT_DEPLOYED' },
-              PREPROD: { deploymentStatus: 'NOT_DEPLOYED' },
-              PROD: { deploymentStatus: 'NOT_DEPLOYED' },
+              PPRD: { deploymentStatus: 'NOT_DEPLOYED' },
+              PRD: { deploymentStatus: 'NOT_DEPLOYED' },
             },
           },
         ],
@@ -206,8 +211,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
             createdAt: '2026-01-20',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+              PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+              PRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
             },
           },
         ],
@@ -222,64 +227,64 @@ export const mockServices: Service[] = [
     serviceName: 'orders-api',
     effectiveCommits: {
       QA: { sha: 'e7f8g9', dependencyStatus: 'OK' },
-      PREPROD: { sha: 'e7f8g9', dependencyStatus: 'INCOMPATIBLE' },
-      PROD: { sha: 'd4e5f6', dependencyStatus: 'OK' },
+      PPRD: { sha: 'e7f8g9', dependencyStatus: 'INCOMPATIBLE' },
+      PRD: { sha: 'd4e5f6', dependencyStatus: 'OK' },
     },
   },
   {
     serviceName: 'shipping-api',
     effectiveCommits: {
       QA: { sha: 'a1b2c3', dependencyStatus: 'OK' },
-      PREPROD: { sha: 'a1b2c3', dependencyStatus: 'OK' },
-      PROD: null,
+      PPRD: { sha: 'a1b2c3', dependencyStatus: 'OK' },
+      PRD: null,
     },
   },
   {
     serviceName: 'payments-api',
     effectiveCommits: {
       QA: { sha: 'f1g2h3', dependencyStatus: 'OK' },
-      PREPROD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
-      PROD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
+      PPRD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
+      PRD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
     },
   },
   {
     serviceName: 'checkout-api',
     effectiveCommits: {
       QA: { sha: 'x9y8z7', dependencyStatus: 'OK' },
-      PREPROD: null,
-      PROD: null,
+      PPRD: null,
+      PRD: null,
     },
   },
   {
     serviceName: 'auth-api',
     effectiveCommits: {
       QA: { sha: 'm4n5o6', dependencyStatus: 'INCOMPATIBLE' },
-      PREPROD: null,
-      PROD: null,
+      PPRD: null,
+      PRD: null,
     },
   },
   {
     serviceName: 'users-api',
     effectiveCommits: {
       QA: null,
-      PREPROD: null,
-      PROD: null,
+      PPRD: null,
+      PRD: null,
     },
   },
   {
     serviceName: 'inventory-api',
     effectiveCommits: {
       QA: { sha: 's1t2u3', dependencyStatus: 'OK' },
-      PREPROD: { sha: 's1t2u3', dependencyStatus: 'OK' },
-      PROD: { sha: 's1t2u3', dependencyStatus: 'OK' },
+      PPRD: { sha: 's1t2u3', dependencyStatus: 'OK' },
+      PRD: { sha: 's1t2u3', dependencyStatus: 'OK' },
     },
   },
   {
     serviceName: 'catalog-api',
     effectiveCommits: {
       QA: { sha: 'v4w5x6', dependencyStatus: 'OK' },
-      PREPROD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
-      PROD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
+      PPRD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
+      PRD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
     },
   },
 ];
@@ -291,8 +296,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     repository: 'github.com/org/orders-api',
     effectiveCommits: {
       QA: { sha: 'e7f8g9', dependencyStatus: 'OK' },
-      PREPROD: { sha: 'e7f8g9', dependencyStatus: 'INCOMPATIBLE' },
-      PROD: { sha: 'd4e5f6', dependencyStatus: 'OK' },
+      PPRD: { sha: 'e7f8g9', dependencyStatus: 'INCOMPATIBLE' },
+      PRD: { sha: 'd4e5f6', dependencyStatus: 'OK' },
     },
     commits: [
       {
@@ -301,8 +306,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
         createdAt: '2026-01-30',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'INCOMPATIBLE' },
-          PROD: { deploymentStatus: 'NOT_DEPLOYED' },
+          PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'INCOMPATIBLE' },
+          PRD: { deploymentStatus: 'NOT_DEPLOYED' },
         },
       },
       {
@@ -311,8 +316,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
         createdAt: '2026-01-29',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+          PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+          PRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
         },
       },
     ],
@@ -322,8 +327,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     repository: 'github.com/org/shipping-api',
     effectiveCommits: {
       QA: { sha: 'a1b2c3', dependencyStatus: 'OK' },
-      PREPROD: { sha: 'a1b2c3', dependencyStatus: 'OK' },
-      PROD: null,
+      PPRD: { sha: 'a1b2c3', dependencyStatus: 'OK' },
+      PRD: null,
     },
     commits: [
       {
@@ -332,8 +337,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
         createdAt: '2026-01-28',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PROD: { deploymentStatus: 'NOT_DEPLOYED' },
+          PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+          PRD: { deploymentStatus: 'NOT_DEPLOYED' },
         },
       },
     ],
@@ -343,8 +348,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     repository: 'github.com/org/payments-api',
     effectiveCommits: {
       QA: { sha: 'f1g2h3', dependencyStatus: 'OK' },
-      PREPROD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
-      PROD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
+      PPRD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
+      PRD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
     },
     commits: [
       {
@@ -353,8 +358,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
         createdAt: '2026-01-25',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+          PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+          PRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
         },
       },
     ],
@@ -364,8 +369,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     repository: 'github.com/org/checkout-api',
     effectiveCommits: {
       QA: { sha: 'x9y8z7', dependencyStatus: 'OK' },
-      PREPROD: null,
-      PROD: null,
+      PPRD: null,
+      PRD: null,
     },
     commits: [
       {
@@ -374,8 +379,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
         createdAt: '2026-01-31',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PREPROD: { deploymentStatus: 'NOT_DEPLOYED' },
-          PROD: { deploymentStatus: 'NOT_DEPLOYED' },
+          PPRD: { deploymentStatus: 'NOT_DEPLOYED' },
+          PRD: { deploymentStatus: 'NOT_DEPLOYED' },
         },
       },
     ],
@@ -385,8 +390,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     repository: 'github.com/org/auth-api',
     effectiveCommits: {
       QA: { sha: 'm4n5o6', dependencyStatus: 'INCOMPATIBLE' },
-      PREPROD: null,
-      PROD: null,
+      PPRD: null,
+      PRD: null,
     },
     commits: [
       {
@@ -395,8 +400,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
         createdAt: '2026-02-01',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'INCOMPATIBLE' },
-          PREPROD: { deploymentStatus: 'NOT_DEPLOYED' },
-          PROD: { deploymentStatus: 'NOT_DEPLOYED' },
+          PPRD: { deploymentStatus: 'NOT_DEPLOYED' },
+          PRD: { deploymentStatus: 'NOT_DEPLOYED' },
         },
       },
     ],
@@ -406,8 +411,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     repository: 'github.com/org/users-api',
     effectiveCommits: {
       QA: null,
-      PREPROD: null,
-      PROD: null,
+      PPRD: null,
+      PRD: null,
     },
     commits: [
       {
@@ -416,8 +421,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
         createdAt: '2026-02-01',
         environments: {
           QA: { deploymentStatus: 'NOT_DEPLOYED' },
-          PREPROD: { deploymentStatus: 'NOT_DEPLOYED' },
-          PROD: { deploymentStatus: 'NOT_DEPLOYED' },
+          PPRD: { deploymentStatus: 'NOT_DEPLOYED' },
+          PRD: { deploymentStatus: 'NOT_DEPLOYED' },
         },
       },
     ],
@@ -427,8 +432,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     repository: 'github.com/org/inventory-api',
     effectiveCommits: {
       QA: { sha: 's1t2u3', dependencyStatus: 'OK' },
-      PREPROD: { sha: 's1t2u3', dependencyStatus: 'OK' },
-      PROD: { sha: 's1t2u3', dependencyStatus: 'OK' },
+      PPRD: { sha: 's1t2u3', dependencyStatus: 'OK' },
+      PRD: { sha: 's1t2u3', dependencyStatus: 'OK' },
     },
     commits: [
       {
@@ -437,8 +442,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
         createdAt: '2026-01-20',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+          PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+          PRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
         },
       },
     ],
@@ -448,8 +453,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     repository: 'github.com/org/catalog-api',
     effectiveCommits: {
       QA: { sha: 'v4w5x6', dependencyStatus: 'OK' },
-      PREPROD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
-      PROD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
+      PPRD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
+      PRD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
     },
     commits: [
       {
@@ -458,8 +463,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
         createdAt: '2026-01-18',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PREPROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PROD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+          PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+          PRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
         },
       },
     ],
@@ -468,9 +473,9 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
 
 // Mock Commit Environment Details (for popover)
 export const mockCommitDetails: Record<string, CommitEnvironmentDetail> = {
-  'e7f8g9-PREPROD': {
+  'e7f8g9-PPRD': {
     commit: 'e7f8g9',
-    environment: 'PREPROD',
+    environment: 'PPRD',
     pipelineId: '4432',
     deployedAt: '2026-01-30T10:21:00Z',
     dependencies: [
@@ -508,9 +513,9 @@ export const mockCommitDetails: Record<string, CommitEnvironmentDetail> = {
       },
     ],
   },
-  'd4e5f6-PROD': {
+  'd4e5f6-PRD': {
     commit: 'd4e5f6',
-    environment: 'PROD',
+    environment: 'PRD',
     pipelineId: '4420',
     deployedAt: '2026-01-29T14:30:00Z',
     dependencies: [
@@ -565,7 +570,7 @@ export const mockDependencyGraph: Record<string, string[]> = {
   'catalog-api': [],
 };
 
-// Expected dependency commits: what commit a service expects from its deps in PREPROD
+// Expected dependency commits: what commit a service expects from its deps in PPRD
 export const mockExpectedDependencies: Record<string, Record<string, string>> = {
   'orders-api': { 'auth-api': 'a1b2c3', 'catalog-api': 'v4w5x6' },
   'shipping-api': { 'orders-api': 'e7f8g9' },
@@ -591,7 +596,7 @@ export function getPreprodCommitsForJira(jiraKey: string): ResolvedCommit[] {
   const resolved: ResolvedCommit[] = [];
   for (const svc of detail.services) {
     for (const commit of svc.commits) {
-      if (commit.environments.PREPROD?.deploymentStatus === 'DEPLOYED') {
+      if (commit.environments.PPRD?.deploymentStatus === 'DEPLOYED') {
         resolved.push({ serviceName: svc.serviceName, sha: commit.sha });
       }
     }
@@ -606,8 +611,8 @@ export function getPreprodCommitsForJira(jiraKey: string): ResolvedCommit[] {
 
 export function getPreprodCommitForService(serviceName: string): ResolvedCommit | null {
   const svc = mockServices.find(s => s.serviceName === serviceName);
-  if (!svc || !svc.effectiveCommits.PREPROD) return null;
-  return { serviceName, sha: svc.effectiveCommits.PREPROD.sha };
+  if (!svc || !svc.effectiveCommits.PPRD) return null;
+  return { serviceName, sha: svc.effectiveCommits.PPRD.sha };
 }
 
 export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): ImpactAnalysis {
@@ -615,18 +620,18 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
   const steps: ExecutionStep[] = [];
   const autoAdded = new Map<string, ResolvedCommit>();
 
-  // Check 1: all commits exist in PREPROD
-  let allInPreprod = true;
+  // Check 1: all commits exist in PPRD
+  let allInPprd = true;
   for (const rc of requestedCommits) {
     const svc = mockServices.find(s => s.serviceName === rc.serviceName);
-    if (!svc?.effectiveCommits.PREPROD || svc.effectiveCommits.PREPROD.sha !== rc.sha) {
-      allInPreprod = false;
+    if (!svc?.effectiveCommits.PPRD || svc.effectiveCommits.PPRD.sha !== rc.sha) {
+      allInPprd = false;
     }
   }
   checks.push({
-    label: 'All commits exist in PREPROD',
-    status: allInPreprod ? 'pass' : 'fail',
-    message: allInPreprod ? undefined : 'One or more commits are not deployed in PREPROD.',
+    label: 'All commits exist in PPRD',
+    status: allInPprd ? 'pass' : 'fail',
+    message: allInPprd ? undefined : 'One or more commits are not deployed in PPRD.',
   });
 
   // Check 2: resolve dependency graph
@@ -634,16 +639,16 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
   for (const rc of requestedCommits) {
     const deps = mockExpectedDependencies[rc.serviceName] || {};
     for (const [depService, expectedSha] of Object.entries(deps)) {
-      const depProd = mockServices.find(s => s.serviceName === depService)?.effectiveCommits.PROD;
+      const depPrd = mockServices.find(s => s.serviceName === depService)?.effectiveCommits.PRD;
       const isAlreadyRequested = requestedCommits.some(r => r.serviceName === depService);
-      if (!isAlreadyRequested && (!depProd || depProd.sha !== expectedSha)) {
-        // Check if dep is in PREPROD with the needed commit
-        const depPreprod = mockServices.find(s => s.serviceName === depService)?.effectiveCommits.PREPROD;
-        if (depPreprod && depPreprod.sha === expectedSha) {
+      if (!isAlreadyRequested && (!depPrd || depPrd.sha !== expectedSha)) {
+        // Check if dep is in PPRD with the needed commit
+        const depPprd = mockServices.find(s => s.serviceName === depService)?.effectiveCommits.PPRD;
+        if (depPprd && depPprd.sha === expectedSha) {
           autoAdded.set(depService, { serviceName: depService, sha: expectedSha });
           hasIncompatibility = true;
-        } else if (depPreprod) {
-          autoAdded.set(depService, { serviceName: depService, sha: depPreprod.sha });
+        } else if (depPprd) {
+          autoAdded.set(depService, { serviceName: depService, sha: depPprd.sha });
           hasIncompatibility = true;
         }
       }
@@ -658,12 +663,12 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
   if (hasIncompatibility) {
     const depDetails = Array.from(autoAdded.entries())
       .map(([svc, rc]) => {
-        const prodSha = mockServices.find(s => s.serviceName === svc)?.effectiveCommits.PROD?.sha || 'none';
-        return `${svc} expected @${rc.sha}, PROD has @${prodSha}`;
+        const prdSha = mockServices.find(s => s.serviceName === svc)?.effectiveCommits.PRD?.sha || 'none';
+        return `${svc} expected @${rc.sha}, PRD has @${prdSha}`;
       })
       .join('; ');
     checks.push({
-      label: 'PROD dependency incompatibility detected',
+      label: 'PRD dependency incompatibility detected',
       status: 'warn',
       message: depDetails,
     });
@@ -678,7 +683,7 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
       sha: dep.sha,
       action: 'Promote',
       reason: 'Dependency',
-      deployAction: `deploy ${dep.sha} → ${dep.serviceName} (PROD)`,
+      deployAction: `deploy ${dep.sha} → ${dep.serviceName} (PRD)`,
       jiraKeys: dep.jiraKey ? [dep.jiraKey] : [],
     });
   }
@@ -690,13 +695,13 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
         sha: rc.sha,
         action: 'Promote',
         reason: 'Requested',
-        deployAction: `deploy ${rc.sha} → ${rc.serviceName} (PROD)`,
+        deployAction: `deploy ${rc.sha} → ${rc.serviceName} (PRD)`,
         jiraKeys: rc.jiraKey ? [rc.jiraKey] : [],
       });
     }
   }
 
-  // Expected PROD state
+  // Expected PRD state
   const prodState: ExpectedProdState[] = [];
   const changedServices = new Set([...autoAdded.keys(), ...requestedCommits.map(r => r.serviceName)]);
   
@@ -707,10 +712,10 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
         || '';
       prodState.push({ serviceName: svc.serviceName, sha: newSha, status: 'compatible', changed: true });
     } else {
-      const prodCommit = svc.effectiveCommits.PROD;
+      const prdCommit = svc.effectiveCommits.PRD;
       prodState.push({
         serviceName: svc.serviceName,
-        sha: prodCommit?.sha || 'none',
+        sha: prdCommit?.sha || 'none',
         status: 'compatible',
         changed: false,
       });

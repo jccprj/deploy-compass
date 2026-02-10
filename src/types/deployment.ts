@@ -1,5 +1,5 @@
 // Environment types
-export const ENVIRONMENTS = ['QA', 'PREPROD', 'PROD'] as const;
+export const ENVIRONMENTS = ['QA', 'PPRD', 'PRD'] as const;
 export type Environment = typeof ENVIRONMENTS[number];
 
 // Status enums
@@ -13,7 +13,8 @@ export interface JiraIssue {
   title: string;
   type: 'Bug' | 'Story' | 'Task' | 'Epic';
   status: string;
-  environments: Record<Environment, { state: EnvironmentState }>;
+  services: string[];
+  deployments: Record<Environment, EnvironmentState>;
 }
 
 export interface CommitEnvironmentStatus {
@@ -36,7 +37,7 @@ export interface JiraIssueDetail {
   key: string;
   title: string;
   status: string;
-  type: 'Bug' | 'Story' | 'Task' | 'Epic';
+  type: string;
   services: ServiceCommits[];
 }
 
@@ -77,6 +78,7 @@ export interface CommitEnvironmentDetail {
   commit: string;
   environment: Environment;
   pipelineId: string;
+  pipelineUrl?: string;
   deployedAt: string;
   dependencies: Dependency[];
 }
