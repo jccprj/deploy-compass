@@ -22,7 +22,7 @@ import type {
 } from '@/types/deployment';
 
 // Toggle between mock data and real API
-const useMockData = false;
+const useMockData = true;
 
 // Base URL for the API
 const API_BASE_URL = 'http://localhost:5042';
