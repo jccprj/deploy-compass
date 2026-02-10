@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Loader2, CheckCircle, AlertTriangle, XCircle, Server } from 'lucide-react';
+import { Loader2, CheckCircle, AlertTriangle, XCircle, Server, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { fetchServices } from '@/lib/api';
 import { ENVIRONMENTS, type DependencyStatus } from '@/types/deployment';
@@ -82,9 +82,24 @@ export default function ServiceListPage() {
                       </span>
                       <div className="flex items-center gap-3">
                         {effectiveCommit ? (
-                          <code className="font-mono text-xs bg-background px-2 py-1 rounded">
-                            {effectiveCommit.sha}
-                          </code>
+                          <div className="flex items-center gap-2">
+                            <code className="font-mono text-xs bg-background px-2 py-1 rounded">
+                              {effectiveCommit.sha}
+                            </code>
+                            {effectiveCommit.pipelineId && (
+                              <a
+                                href={effectiveCommit.pipelineUrl || '#'}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="flex items-center gap-1 text-xs text-primary hover:underline"
+                                title={`Pipeline #${effectiveCommit.pipelineId}`}
+                              >
+                                #{effectiveCommit.pipelineId}
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
+                          </div>
                         ) : (
                           <span className="text-xs text-muted-foreground">—</span>
                         )}

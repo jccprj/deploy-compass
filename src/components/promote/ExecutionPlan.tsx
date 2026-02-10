@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { ExecutionStep } from '@/types/deployment';
@@ -19,6 +20,7 @@ export function ExecutionPlan({ steps }: ExecutionPlanProps) {
             <TableHead className="w-12">#</TableHead>
             <TableHead>Service</TableHead>
             <TableHead>Commit</TableHead>
+            <TableHead>Pipeline</TableHead>
             <TableHead>Deploy Action</TableHead>
             <TableHead>Reason</TableHead>
             <TableHead>Jira</TableHead>
@@ -31,6 +33,21 @@ export function ExecutionPlan({ steps }: ExecutionPlanProps) {
               <TableCell className="font-medium">{step.serviceName}</TableCell>
               <TableCell>
                 <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{step.sha}</code>
+              </TableCell>
+              <TableCell>
+                {step.pipelineId ? (
+                  <a
+                    href={step.pipelineUrl || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-xs text-primary hover:underline"
+                  >
+                    #{step.pipelineId}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
               </TableCell>
               <TableCell>
                 <code className="text-xs text-muted-foreground">{step.deployAction}</code>

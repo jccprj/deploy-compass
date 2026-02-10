@@ -54,7 +54,7 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
     enabled: scope === 'service' && !!selectedService,
   });
 
-  const servicesWithPreprod = services?.filter(s => s.effectiveCommits.PREPROD !== null) || [];
+  const servicesWithPreprod = services?.filter(s => s.effectiveCommits.PPRD !== null) || [];
   const jiraCommits = jiraQueries.data || [];
 
   const resolvedCommits = scope === 'jira' ? jiraCommits : (serviceCommit ? [serviceCommit] : []);

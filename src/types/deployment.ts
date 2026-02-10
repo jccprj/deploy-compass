@@ -5,7 +5,7 @@ export type Environment = typeof ENVIRONMENTS[number];
 // Status enums
 export type DeploymentStatus = 'DEPLOYED' | 'NOT_DEPLOYED';
 export type DependencyStatus = 'OK' | 'INCOMPATIBLE' | 'MISSING';
-export type EnvironmentState = 'OK' | 'INCOMPLETE';
+export type EnvironmentState = 'OK' | 'INCOMPLETE' | 'NOT_DEPLOYED';
 
 // Jira Issue types
 export interface JiraIssue {
@@ -45,6 +45,8 @@ export interface JiraIssueDetail {
 export interface EffectiveCommit {
   sha: string;
   dependencyStatus: DependencyStatus;
+  pipelineId?: string;
+  pipelineUrl?: string;
 }
 
 export interface Service {
@@ -106,6 +108,8 @@ export interface ExecutionStep {
   reason: 'Requested' | 'Dependency';
   deployAction: string; // e.g. "Deploy e7f8g9 to PROD"
   jiraKeys: string[];
+  pipelineId?: string;
+  pipelineUrl?: string;
 }
 
 export interface ExpectedProdState {

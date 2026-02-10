@@ -1,6 +1,7 @@
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Loader2, ArrowUpDown, Filter } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -10,12 +11,23 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { fetchJiraIssues } from '@/lib/api';
 import { ENVIRONMENTS, type EnvironmentState } from '@/types/deployment';
 
 function StateIcon({ state }: { state: EnvironmentState }) {
   if (state === 'OK') {
     return <CheckCircle className="h-5 w-5 text-status-ok mx-auto" />;
+  }
+  if (state === 'NOT_DEPLOYED') {
+    return <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />;
   }
   return <AlertTriangle className="h-5 w-5 text-status-warning mx-auto" />;
 }
@@ -35,11 +47,61 @@ function TypeBadge({ type }: { type: string }) {
   );
 }
 
+type SortField = 'key' | 'title' | 'type' | 'status' | 'QA' | 'PPRD' | 'PRD';
+type SortDir = 'asc' | 'desc';
+
 export default function JiraListPage() {
   const { data: issues, isLoading } = useQuery({
     queryKey: ['jira-issues'],
     queryFn: fetchJiraIssues,
   });
+
+  const [sortField, setSortField] = useState<SortField>('key');
+  const [sortDir, setSortDir] = useState<SortDir>('asc');
+  const [filterType, setFilterType] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+
+  const toggleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  };
+
+  const stateOrder: Record<EnvironmentState, number> = { OK: 0, INCOMPLETE: 1, NOT_DEPLOYED: 2 };
+
+  const filtered = useMemo(() => {
+    if (!issues) return [];
+    return issues.filter(i => {
+      if (filterType !== 'all' && i.type !== filterType) return false;
+      if (filterStatus !== 'all' && i.status !== filterStatus) return false;
+      return true;
+    });
+  }, [issues, filterType, filterStatus]);
+
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      const dir = sortDir === 'asc' ? 1 : -1;
+      if (sortField === 'QA' || sortField === 'PPRD' || sortField === 'PRD') {
+        return (stateOrder[a.deployments[sortField]] - stateOrder[b.deployments[sortField]]) * dir;
+      }
+      const va = a[sortField as keyof typeof a] as string;
+      const vb = b[sortField as keyof typeof b] as string;
+      return va.localeCompare(vb) * dir;
+    });
+  }, [filtered, sortField, sortDir]);
+
+  const uniqueTypes = useMemo(() => {
+    if (!issues) return [];
+    return [...new Set(issues.map(i => i.type))];
+  }, [issues]);
+
+  const uniqueStatuses = useMemo(() => {
+    if (!issues) return [];
+    return [...new Set(issues.map(i => i.status))];
+  }, [issues]);
 
   if (isLoading) {
     return (
@@ -48,6 +110,18 @@ export default function JiraListPage() {
       </div>
     );
   }
+
+  const SortableHead = ({ field, children, className }: { field: SortField; children: React.ReactNode; className?: string }) => (
+    <TableHead className={className}>
+      <button
+        onClick={() => toggleSort(field)}
+        className="flex items-center gap-1 hover:text-foreground transition-colors"
+      >
+        {children}
+        <ArrowUpDown className={`h-3 w-3 ${sortField === field ? 'text-foreground' : 'text-muted-foreground/50'}`} />
+      </button>
+    </TableHead>
+  );
 
   return (
     <div className="space-y-6">
@@ -58,23 +132,55 @@ export default function JiraListPage() {
         </p>
       </div>
 
+      {/* Filters */}
+      <div className="flex items-center gap-3">
+        <Filter className="h-4 w-4 text-muted-foreground" />
+        <Select value={filterType} onValueChange={setFilterType}>
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            {uniqueTypes.map(t => (
+              <SelectItem key={t} value={t}>{t}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Statuses</SelectItem>
+            {uniqueStatuses.map(s => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {(filterType !== 'all' || filterStatus !== 'all') && (
+          <Button variant="ghost" size="sm" onClick={() => { setFilterType('all'); setFilterStatus('all'); }}>
+            Clear
+          </Button>
+        )}
+      </div>
+
       <div className="rounded-lg border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-32">Jira Key</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead className="w-24">Type</TableHead>
-              <TableHead className="w-32">Status</TableHead>
+              <SortableHead field="key" className="w-32">Jira Key</SortableHead>
+              <SortableHead field="title">Title</SortableHead>
+              <SortableHead field="type" className="w-24">Type</SortableHead>
+              <SortableHead field="status" className="w-32">Status</SortableHead>
               {ENVIRONMENTS.map((env) => (
-                <TableHead key={env} className="w-24 text-center">
+                <SortableHead key={env} field={env as SortField} className="w-24 text-center">
                   {env}
-                </TableHead>
+                </SortableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {issues?.map((issue) => (
+            {sorted.map((issue) => (
               <TableRow key={issue.key}>
                 <TableCell>
                   <Link
@@ -98,6 +204,13 @@ export default function JiraListPage() {
                 ))}
               </TableRow>
             ))}
+            {sorted.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  No issues match the current filters.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>
