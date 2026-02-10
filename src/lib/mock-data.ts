@@ -40,8 +40,8 @@ export const mockJiraIssues: JiraIssue[] = [
     services: ['checkout-api'],
     deployments: {
       QA: 'OK',
-      PPRD: 'INCOMPLETE',
-      PRD: 'INCOMPLETE',
+      PPRD: 'NOT_DEPLOYED',
+      PRD: 'NOT_DEPLOYED',
     },
   },
   {
@@ -52,8 +52,8 @@ export const mockJiraIssues: JiraIssue[] = [
     services: ['auth-api', 'users-api'],
     deployments: {
       QA: 'INCOMPLETE',
-      PPRD: 'INCOMPLETE',
-      PRD: 'INCOMPLETE',
+      PPRD: 'NOT_DEPLOYED',
+      PRD: 'NOT_DEPLOYED',
     },
   },
   {
@@ -226,31 +226,31 @@ export const mockServices: Service[] = [
   {
     serviceName: 'orders-api',
     effectiveCommits: {
-      QA: { sha: 'e7f8g9', dependencyStatus: 'OK' },
-      PPRD: { sha: 'e7f8g9', dependencyStatus: 'INCOMPATIBLE' },
-      PRD: { sha: 'd4e5f6', dependencyStatus: 'OK' },
+      QA: { sha: 'e7f8g9', dependencyStatus: 'OK', pipelineId: '4431', pipelineUrl: 'https://github.com/org/orders-api/actions/runs/4431' },
+      PPRD: { sha: 'e7f8g9', dependencyStatus: 'INCOMPATIBLE', pipelineId: '4432', pipelineUrl: 'https://github.com/org/orders-api/actions/runs/4432' },
+      PRD: { sha: 'd4e5f6', dependencyStatus: 'OK', pipelineId: '4420', pipelineUrl: 'https://github.com/org/orders-api/actions/runs/4420' },
     },
   },
   {
     serviceName: 'shipping-api',
     effectiveCommits: {
-      QA: { sha: 'a1b2c3', dependencyStatus: 'OK' },
-      PPRD: { sha: 'a1b2c3', dependencyStatus: 'OK' },
+      QA: { sha: 'a1b2c3', dependencyStatus: 'OK', pipelineId: '3301', pipelineUrl: 'https://github.com/org/shipping-api/actions/runs/3301' },
+      PPRD: { sha: 'a1b2c3', dependencyStatus: 'OK', pipelineId: '3302', pipelineUrl: 'https://github.com/org/shipping-api/actions/runs/3302' },
       PRD: null,
     },
   },
   {
     serviceName: 'payments-api',
     effectiveCommits: {
-      QA: { sha: 'f1g2h3', dependencyStatus: 'OK' },
-      PPRD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
-      PRD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
+      QA: { sha: 'f1g2h3', dependencyStatus: 'OK', pipelineId: '2201', pipelineUrl: 'https://github.com/org/payments-api/actions/runs/2201' },
+      PPRD: { sha: 'f1g2h3', dependencyStatus: 'OK', pipelineId: '2202', pipelineUrl: 'https://github.com/org/payments-api/actions/runs/2202' },
+      PRD: { sha: 'f1g2h3', dependencyStatus: 'OK', pipelineId: '2203', pipelineUrl: 'https://github.com/org/payments-api/actions/runs/2203' },
     },
   },
   {
     serviceName: 'checkout-api',
     effectiveCommits: {
-      QA: { sha: 'x9y8z7', dependencyStatus: 'OK' },
+      QA: { sha: 'x9y8z7', dependencyStatus: 'OK', pipelineId: '5501', pipelineUrl: 'https://github.com/org/checkout-api/actions/runs/5501' },
       PPRD: null,
       PRD: null,
     },
@@ -258,7 +258,7 @@ export const mockServices: Service[] = [
   {
     serviceName: 'auth-api',
     effectiveCommits: {
-      QA: { sha: 'm4n5o6', dependencyStatus: 'INCOMPATIBLE' },
+      QA: { sha: 'm4n5o6', dependencyStatus: 'INCOMPATIBLE', pipelineId: '4500', pipelineUrl: 'https://github.com/org/auth-api/actions/runs/4500' },
       PPRD: null,
       PRD: null,
     },
@@ -274,17 +274,17 @@ export const mockServices: Service[] = [
   {
     serviceName: 'inventory-api',
     effectiveCommits: {
-      QA: { sha: 's1t2u3', dependencyStatus: 'OK' },
-      PPRD: { sha: 's1t2u3', dependencyStatus: 'OK' },
-      PRD: { sha: 's1t2u3', dependencyStatus: 'OK' },
+      QA: { sha: 's1t2u3', dependencyStatus: 'OK', pipelineId: '1101', pipelineUrl: 'https://github.com/org/inventory-api/actions/runs/1101' },
+      PPRD: { sha: 's1t2u3', dependencyStatus: 'OK', pipelineId: '1102', pipelineUrl: 'https://github.com/org/inventory-api/actions/runs/1102' },
+      PRD: { sha: 's1t2u3', dependencyStatus: 'OK', pipelineId: '1103', pipelineUrl: 'https://github.com/org/inventory-api/actions/runs/1103' },
     },
   },
   {
     serviceName: 'catalog-api',
     effectiveCommits: {
-      QA: { sha: 'v4w5x6', dependencyStatus: 'OK' },
-      PPRD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
-      PRD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
+      QA: { sha: 'v4w5x6', dependencyStatus: 'OK', pipelineId: '6601', pipelineUrl: 'https://github.com/org/catalog-api/actions/runs/6601' },
+      PPRD: { sha: 'v4w5x6', dependencyStatus: 'OK', pipelineId: '6602', pipelineUrl: 'https://github.com/org/catalog-api/actions/runs/6602' },
+      PRD: { sha: 'v4w5x6', dependencyStatus: 'OK', pipelineId: '6603', pipelineUrl: 'https://github.com/org/catalog-api/actions/runs/6603' },
     },
   },
 ];
@@ -295,9 +295,9 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     serviceName: 'orders-api',
     repository: 'github.com/org/orders-api',
     effectiveCommits: {
-      QA: { sha: 'e7f8g9', dependencyStatus: 'OK' },
-      PPRD: { sha: 'e7f8g9', dependencyStatus: 'INCOMPATIBLE' },
-      PRD: { sha: 'd4e5f6', dependencyStatus: 'OK' },
+      QA: { sha: 'e7f8g9', dependencyStatus: 'OK', pipelineId: '4431', pipelineUrl: 'https://github.com/org/orders-api/actions/runs/4431' },
+      PPRD: { sha: 'e7f8g9', dependencyStatus: 'INCOMPATIBLE', pipelineId: '4432', pipelineUrl: 'https://github.com/org/orders-api/actions/runs/4432' },
+      PRD: { sha: 'd4e5f6', dependencyStatus: 'OK', pipelineId: '4420', pipelineUrl: 'https://github.com/org/orders-api/actions/runs/4420' },
     },
     commits: [
       {
@@ -326,8 +326,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     serviceName: 'shipping-api',
     repository: 'github.com/org/shipping-api',
     effectiveCommits: {
-      QA: { sha: 'a1b2c3', dependencyStatus: 'OK' },
-      PPRD: { sha: 'a1b2c3', dependencyStatus: 'OK' },
+      QA: { sha: 'a1b2c3', dependencyStatus: 'OK', pipelineId: '3301', pipelineUrl: 'https://github.com/org/shipping-api/actions/runs/3301' },
+      PPRD: { sha: 'a1b2c3', dependencyStatus: 'OK', pipelineId: '3302', pipelineUrl: 'https://github.com/org/shipping-api/actions/runs/3302' },
       PRD: null,
     },
     commits: [
@@ -347,9 +347,9 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     serviceName: 'payments-api',
     repository: 'github.com/org/payments-api',
     effectiveCommits: {
-      QA: { sha: 'f1g2h3', dependencyStatus: 'OK' },
-      PPRD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
-      PRD: { sha: 'f1g2h3', dependencyStatus: 'OK' },
+      QA: { sha: 'f1g2h3', dependencyStatus: 'OK', pipelineId: '2201', pipelineUrl: 'https://github.com/org/payments-api/actions/runs/2201' },
+      PPRD: { sha: 'f1g2h3', dependencyStatus: 'OK', pipelineId: '2202', pipelineUrl: 'https://github.com/org/payments-api/actions/runs/2202' },
+      PRD: { sha: 'f1g2h3', dependencyStatus: 'OK', pipelineId: '2203', pipelineUrl: 'https://github.com/org/payments-api/actions/runs/2203' },
     },
     commits: [
       {
@@ -368,7 +368,7 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     serviceName: 'checkout-api',
     repository: 'github.com/org/checkout-api',
     effectiveCommits: {
-      QA: { sha: 'x9y8z7', dependencyStatus: 'OK' },
+      QA: { sha: 'x9y8z7', dependencyStatus: 'OK', pipelineId: '5501', pipelineUrl: 'https://github.com/org/checkout-api/actions/runs/5501' },
       PPRD: null,
       PRD: null,
     },
@@ -389,7 +389,7 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     serviceName: 'auth-api',
     repository: 'github.com/org/auth-api',
     effectiveCommits: {
-      QA: { sha: 'm4n5o6', dependencyStatus: 'INCOMPATIBLE' },
+      QA: { sha: 'm4n5o6', dependencyStatus: 'INCOMPATIBLE', pipelineId: '4500', pipelineUrl: 'https://github.com/org/auth-api/actions/runs/4500' },
       PPRD: null,
       PRD: null,
     },
@@ -431,9 +431,9 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     serviceName: 'inventory-api',
     repository: 'github.com/org/inventory-api',
     effectiveCommits: {
-      QA: { sha: 's1t2u3', dependencyStatus: 'OK' },
-      PPRD: { sha: 's1t2u3', dependencyStatus: 'OK' },
-      PRD: { sha: 's1t2u3', dependencyStatus: 'OK' },
+      QA: { sha: 's1t2u3', dependencyStatus: 'OK', pipelineId: '1101', pipelineUrl: 'https://github.com/org/inventory-api/actions/runs/1101' },
+      PPRD: { sha: 's1t2u3', dependencyStatus: 'OK', pipelineId: '1102', pipelineUrl: 'https://github.com/org/inventory-api/actions/runs/1102' },
+      PRD: { sha: 's1t2u3', dependencyStatus: 'OK', pipelineId: '1103', pipelineUrl: 'https://github.com/org/inventory-api/actions/runs/1103' },
     },
     commits: [
       {
@@ -452,9 +452,9 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
     serviceName: 'catalog-api',
     repository: 'github.com/org/catalog-api',
     effectiveCommits: {
-      QA: { sha: 'v4w5x6', dependencyStatus: 'OK' },
-      PPRD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
-      PRD: { sha: 'v4w5x6', dependencyStatus: 'OK' },
+      QA: { sha: 'v4w5x6', dependencyStatus: 'OK', pipelineId: '6601', pipelineUrl: 'https://github.com/org/catalog-api/actions/runs/6601' },
+      PPRD: { sha: 'v4w5x6', dependencyStatus: 'OK', pipelineId: '6602', pipelineUrl: 'https://github.com/org/catalog-api/actions/runs/6602' },
+      PRD: { sha: 'v4w5x6', dependencyStatus: 'OK', pipelineId: '6603', pipelineUrl: 'https://github.com/org/catalog-api/actions/runs/6603' },
     },
     commits: [
       {
@@ -677,6 +677,8 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
   // Build execution plan: dependencies first, then requested
   let order = 1;
   for (const [, dep] of autoAdded) {
+    const svcData = mockServices.find(s => s.serviceName === dep.serviceName);
+    const pprdData = svcData?.effectiveCommits.PPRD;
     steps.push({
       order: order++,
       serviceName: dep.serviceName,
@@ -685,10 +687,14 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
       reason: 'Dependency',
       deployAction: `deploy ${dep.sha} → ${dep.serviceName} (PRD)`,
       jiraKeys: dep.jiraKey ? [dep.jiraKey] : [],
+      pipelineId: pprdData?.pipelineId,
+      pipelineUrl: pprdData?.pipelineUrl,
     });
   }
   for (const rc of requestedCommits) {
     if (!autoAdded.has(rc.serviceName)) {
+      const svcData = mockServices.find(s => s.serviceName === rc.serviceName);
+      const pprdData = svcData?.effectiveCommits.PPRD;
       steps.push({
         order: order++,
         serviceName: rc.serviceName,
@@ -697,6 +703,8 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
         reason: 'Requested',
         deployAction: `deploy ${rc.sha} → ${rc.serviceName} (PRD)`,
         jiraKeys: rc.jiraKey ? [rc.jiraKey] : [],
+        pipelineId: pprdData?.pipelineId,
+        pipelineUrl: pprdData?.pipelineUrl,
       });
     }
   }
