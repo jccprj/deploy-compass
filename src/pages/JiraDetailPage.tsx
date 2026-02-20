@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Loader2, ExternalLink } from 'lucide-react';
+import { CommitLink } from '@/components/CommitLink';
 import {
   Table,
   TableBody,
@@ -127,9 +128,7 @@ export default function JiraDetailPage() {
                         key={commit.sha}
                         className="flex items-center gap-2 text-sm"
                       >
-                        <code className="font-mono bg-muted px-2 py-1 rounded">
-                          {commit.sha?.substring(0, 7)}
-                        </code>
+                        <CommitLink sha={commit.sha} />
                         <span className="text-muted-foreground text-xs">
                           {commit.createdAt}
                         </span>

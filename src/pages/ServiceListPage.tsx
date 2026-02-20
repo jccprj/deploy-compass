@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Loader2, CheckCircle, AlertTriangle, XCircle, Server, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CommitLink } from '@/components/CommitLink';
 import { fetchServices } from '@/lib/api';
 import { ENVIRONMENTS, type DependencyStatus } from '@/types/deployment';
 import { cn } from '@/lib/utils';
@@ -83,9 +84,7 @@ export default function ServiceListPage() {
                       <div className="flex items-center gap-3">
                         {effectiveCommit ? (
                           <div className="flex items-center gap-2">
-                            <code className="font-mono text-xs bg-background px-2 py-1 rounded">
-                              {effectiveCommit.sha}
-                            </code>
+                            <CommitLink sha={effectiveCommit.sha} />
                             {effectiveCommit.pipelineId && (
                               <a
                                 href={effectiveCommit.pipelineUrl || '#'}
