@@ -27,6 +27,7 @@ import type {
 
 // Toggle between mock data and real API
 const useMockData = true;
+const alertMockMethods = true; // Set to true to show alert for each mock API call
 
 // Base URL for the API
 const API_BASE_URL = 'http://localhost:5042';
@@ -38,6 +39,8 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export async function fetchJiraIssues(): Promise<JiraIssue[]> {
   if (useMockData) {
     await delay(300);
+    if (alertMockMethods)
+      alert('API 1 — Jira Issues List');
     return mockJiraIssues;
   }
 
@@ -52,6 +55,8 @@ export async function fetchJiraIssues(): Promise<JiraIssue[]> {
 export async function fetchJiraIssueDetail(key: string): Promise<JiraIssueDetail | null> {
   if (useMockData) {
     await delay(200);
+    if (alertMockMethods)
+      alert(`API 2 — Jira Issue Detail for ${key}`);
     return mockJiraIssueDetails[key] || null;
   }
 
@@ -69,6 +74,8 @@ export async function fetchJiraIssueDetail(key: string): Promise<JiraIssueDetail
 export async function fetchServices(): Promise<Service[]> {
   if (useMockData) {
     await delay(300);
+    if (alertMockMethods)
+      alert('API 3 — Service Selection');
     return mockServices;
   }
 
@@ -83,6 +90,8 @@ export async function fetchServices(): Promise<Service[]> {
 export async function fetchServiceDetail(serviceName: string): Promise<ServiceDetail | null> {
   if (useMockData) {
     await delay(200);
+    if (alertMockMethods)
+      alert(`API 4 — Service Detail for ${serviceName}`);
     return mockServiceDetails[serviceName] || null;
   }
 
@@ -128,6 +137,8 @@ export async function fetchCommitEnvironmentDetail(
 ): Promise<CommitEnvironmentDetail | null> {
   if (useMockData) {
     await delay(150);
+    if (alertMockMethods)
+      alert(`API 5 — Commit Dependency Detail for ${sha} in ${env}`);
     return getCommitEnvironmentDetail(sha, env);
   }
 
@@ -143,14 +154,40 @@ export async function fetchCommitEnvironmentDetail(
 
 // API 6 — Promotion: PREPROD commits for a Jira issue
 export async function fetchPreprodCommitsForJira(jiraKey: string): Promise<ResolvedCommit[]> {
-  await delay(200);
-  return getPreprodCommitsForJira(jiraKey);
+  if (useMockData) {
+    await delay(200);
+    if (alertMockMethods)
+      alert(`API 6 — Promotion: PREPROD commits for Jira issue ${jiraKey}`);
+    return getPreprodCommitsForJira(jiraKey);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/commits/environment/PPRD/jira/${jiraKey}`);
+   if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`Failed to fetch fetchPreprodCommitsForJira. detail: ${response.statusText}`);
+  }
+  return response.json();
 }
 
 // API 7 — Promotion: PREPROD commit for a service
 export async function fetchPreprodCommitForService(serviceName: string): Promise<ResolvedCommit | null> {
-  await delay(150);
-  return getPreprodCommitForService(serviceName);
+  if (useMockData) {
+    await delay(150);
+    if (alertMockMethods)
+      alert(`API 7 — Promotion: PREPROD commit for service ${serviceName}`);
+    return getPreprodCommitForService(serviceName);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/commits/environment/PPRD/service/${serviceName}`);
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`Failed to fetch fetchPreprodCommitForService. detail: ${response.statusText}`);
+  }
+  return response.json();
 }
 
 // API 7b — Promotion: Pipelines deployed to PPRD for a service
@@ -162,6 +199,8 @@ export async function fetchPipelinesForService(serviceName: string): Promise<Ser
 // API 8 — Promotion: Analyze production impact
 export async function analyzeProductionImpact(commits: ResolvedCommit[]): Promise<ImpactAnalysis> {
   await delay(400);
+  if (alertMockMethods)
+    alert('API 8 — Promotion: Analyze production impact');
   return computeImpactAnalysis(commits);
 }
 
@@ -171,6 +210,8 @@ export async function createProductionChange(
   _metadata: ChangeMetadata
 ): Promise<{ success: boolean }> {
   await delay(300);
+  if (alertMockMethods)
+    alert('API 9 — Promotion: Create production change');
   return { success: true };
 }
 
