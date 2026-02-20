@@ -689,6 +689,32 @@ export function getPreprodCommitForService(serviceName: string): ResolvedCommit 
   return { serviceName, sha: svc.effectiveCommits.PPRD.sha };
 }
 
+// Mock pipelines deployed to PPRD per service
+import type { ServicePipeline } from '@/types/deployment';
+
+export const mockServicePipelines: Record<string, ServicePipeline[]> = {
+  'orders-api': [
+    { pipelineId: '4432', pipelineUrl: 'https://github.com/org/orders-api/actions/runs/4432', sha: 'e7f8g9', deployedAt: '2026-01-30T10:21:00Z', serviceName: 'orders-api' },
+    { pipelineId: '4425', pipelineUrl: 'https://github.com/org/orders-api/actions/runs/4425', sha: 'd4e5f6', deployedAt: '2026-01-29T14:30:00Z', serviceName: 'orders-api' },
+  ],
+  'shipping-api': [
+    { pipelineId: '3302', pipelineUrl: 'https://github.com/org/shipping-api/actions/runs/3302', sha: 'a1b2c3', deployedAt: '2026-01-28T16:45:00Z', serviceName: 'shipping-api' },
+  ],
+  'payments-api': [
+    { pipelineId: '2202', pipelineUrl: 'https://github.com/org/payments-api/actions/runs/2202', sha: 'f1g2h3', deployedAt: '2026-01-25T11:00:00Z', serviceName: 'payments-api' },
+  ],
+  'inventory-api': [
+    { pipelineId: '1102', pipelineUrl: 'https://github.com/org/inventory-api/actions/runs/1102', sha: 's1t2u3', deployedAt: '2026-01-20T09:15:00Z', serviceName: 'inventory-api' },
+  ],
+  'catalog-api': [
+    { pipelineId: '6602', pipelineUrl: 'https://github.com/org/catalog-api/actions/runs/6602', sha: 'v4w5x6', deployedAt: '2026-01-18T13:30:00Z', serviceName: 'catalog-api' },
+  ],
+};
+
+export function getPipelinesForService(serviceName: string): ServicePipeline[] {
+  return mockServicePipelines[serviceName] || [];
+}
+
 export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): ImpactAnalysis {
   const checks: ValidationCheck[] = [];
   const steps: ExecutionStep[] = [];

@@ -7,7 +7,8 @@ import {
   getPreprodCommitsForJira,
   getPreprodCommitForService,
   computeImpactAnalysis,
-  getMockCommitInfo
+  getMockCommitInfo,
+  getPipelinesForService,
 } from './mock-data';
 import type {
   JiraIssue,
@@ -21,6 +22,7 @@ import type {
   ExecutionStep,
   ChangeMetadata,
   CommitDetail,
+  ServicePipeline,
 } from '@/types/deployment';
 
 // Toggle between mock data and real API
@@ -149,6 +151,12 @@ export async function fetchPreprodCommitsForJira(jiraKey: string): Promise<Resol
 export async function fetchPreprodCommitForService(serviceName: string): Promise<ResolvedCommit | null> {
   await delay(150);
   return getPreprodCommitForService(serviceName);
+}
+
+// API 7b — Promotion: Pipelines deployed to PPRD for a service
+export async function fetchPipelinesForService(serviceName: string): Promise<ServicePipeline[]> {
+  await delay(200);
+  return getPipelinesForService(serviceName);
 }
 
 // API 8 — Promotion: Analyze production impact
