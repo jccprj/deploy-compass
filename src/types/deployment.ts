@@ -100,7 +100,15 @@ export interface CommitDetail {
 }
 
 // Promotion types
-export type PromotionScope = 'jira' | 'service';
+export type PromotionScope = 'jira' | 'pipeline';
+
+export interface ServicePipeline {
+  pipelineId: string;
+  pipelineUrl: string;
+  sha: string;
+  deployedAt: string;
+  serviceName: string;
+}
 
 export interface ResolvedCommit {
   serviceName: string;
