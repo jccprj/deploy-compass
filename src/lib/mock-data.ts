@@ -77,12 +77,15 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
     title: 'Fix freight calculation',
     status: 'In Progress',
     type: 'Bug',
+    url: 'https://jira.company.com/browse/PROJ-123',
     services: [
       {
         serviceName: 'orders-api',
         commits: [
           {
             sha: 'd4e5f6',
+            author: 'Alice Johnson',
+            message: 'Fix freight calculation for international orders',
             createdAt: '2026-01-29',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -92,6 +95,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
           },
           {
             sha: 'e7f8g9',
+            author: 'Alice Johnson',
+            message: 'Update freight calculation with new tax rules',
             createdAt: '2026-01-30',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -106,6 +111,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
         commits: [
           {
             sha: 'a1b2c3',
+            author: 'Bob Smith',
+            message: 'Update shipping provider integration',
             createdAt: '2026-01-28',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -122,12 +129,15 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
     title: 'Add payment retry logic',
     status: 'Done',
     type: 'Story',
+    url: 'https://jira.company.com/browse/PROJ-124',
     services: [
       {
         serviceName: 'payments-api',
         commits: [
           {
             sha: 'f1g2h3',
+            author: 'Carol Williams',
+            message: 'Implement retry logic for failed payments',
             createdAt: '2026-01-25',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -144,12 +154,15 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
     title: 'Improve checkout performance',
     status: 'In Progress',
     type: 'Task',
+    url: 'https://jira.company.com/browse/PROJ-125',
     services: [
       {
         serviceName: 'checkout-api',
         commits: [
           {
             sha: 'x9y8z7',
+            author: 'David Brown',
+            message: 'Optimize checkout database queries',
             createdAt: '2026-01-31',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -166,12 +179,15 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
     title: 'User authentication refactor',
     status: 'In Review',
     type: 'Epic',
+    url: 'https://jira.company.com/browse/PROJ-126',
     services: [
       {
         serviceName: 'auth-api',
         commits: [
           {
             sha: 'm4n5o6',
+            author: 'Emma Davis',
+            message: 'Refactor JWT token generation',
             createdAt: '2026-02-01',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'INCOMPATIBLE' },
@@ -186,6 +202,8 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
         commits: [
           {
             sha: 'p7q8r9',
+            author: 'Frank Miller',
+            message: 'Update user model for new auth system',
             createdAt: '2026-02-01',
             environments: {
               QA: { deploymentStatus: 'NOT_DEPLOYED' },
@@ -202,12 +220,15 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
     title: 'Fix inventory sync issue',
     status: 'Done',
     type: 'Bug',
+    url: 'https://jira.company.com/browse/PROJ-127',
     services: [
       {
         serviceName: 'inventory-api',
         commits: [
           {
             sha: 's1t2u3',
+            author: 'Grace Lee',
+            message: 'Fix race condition in inventory sync',
             createdAt: '2026-01-20',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -303,6 +324,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
       {
         sha: 'e7f8g9',
         jiraKey: 'PROJ-123',
+        author: 'Alice Johnson',
+        message: 'Update freight calculation with new tax rules',
         createdAt: '2026-01-30',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -313,6 +336,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
       {
         sha: 'd4e5f6',
         jiraKey: 'PROJ-123',
+        author: 'Alice Johnson',
+        message: 'Fix freight calculation for international orders',
         createdAt: '2026-01-29',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -334,6 +359,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
       {
         sha: 'a1b2c3',
         jiraKey: 'PROJ-123',
+        author: 'Bob Smith',
+        message: 'Update shipping provider integration',
         createdAt: '2026-01-28',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -355,6 +382,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
       {
         sha: 'f1g2h3',
         jiraKey: 'PROJ-124',
+        author: 'Carol Williams',
+        message: 'Implement retry logic for failed payments',
         createdAt: '2026-01-25',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -376,6 +405,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
       {
         sha: 'x9y8z7',
         jiraKey: 'PROJ-125',
+        author: 'David Brown',
+        message: 'Optimize checkout database queries',
         createdAt: '2026-01-31',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -397,6 +428,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
       {
         sha: 'm4n5o6',
         jiraKey: 'PROJ-126',
+        author: 'Emma Davis',
+        message: 'Refactor JWT token generation',
         createdAt: '2026-02-01',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'INCOMPATIBLE' },
@@ -418,6 +451,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
       {
         sha: 'p7q8r9',
         jiraKey: 'PROJ-126',
+        author: 'Frank Miller',
+        message: 'Update user model for new auth system',
         createdAt: '2026-02-01',
         environments: {
           QA: { deploymentStatus: 'NOT_DEPLOYED' },
@@ -439,6 +474,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
       {
         sha: 's1t2u3',
         jiraKey: 'PROJ-127',
+        author: 'Grace Lee',
+        message: 'Fix race condition in inventory sync',
         createdAt: '2026-01-20',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
@@ -460,6 +497,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
       {
         sha: 'v4w5x6',
         jiraKey: 'PROJ-128',
+        author: 'Henry Wilson',
+        message: 'Add support for new product categories',
         createdAt: '2026-01-18',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },

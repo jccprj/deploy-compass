@@ -78,7 +78,15 @@ export default function JiraDetailPage() {
       <div className="space-y-2">
         <div className="flex items-center gap-3">
           <h2 className="text-2xl font-semibold tracking-tight font-mono">
-            {issue.key}
+
+            <a href={issue.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-primary hover:underline"
+              >
+                  {issue.key}
+                <ExternalLink className="h-3 w-3" />
+              </a>
           </h2>
           <TypeBadge type={issue.type} />
           <Badge variant="secondary">{issue.status}</Badge>
@@ -120,10 +128,14 @@ export default function JiraDetailPage() {
                         className="flex items-center gap-2 text-sm"
                       >
                         <code className="font-mono bg-muted px-2 py-1 rounded">
-                          {commit.sha}
+                          {commit.sha?.substring(0, 7)}
                         </code>
                         <span className="text-muted-foreground text-xs">
                           {commit.createdAt}
+                        </span>
+
+                        <span className="text-muted-foreground text-xs">
+                          {commit.author}
                         </span>
                       </div>
                     ))}

@@ -25,6 +25,8 @@ export interface CommitEnvironmentStatus {
 export interface Commit {
   sha: string;
   createdAt: string;
+  author: string;
+  message: string;
   environments: Record<Environment, CommitEnvironmentStatus>;
 }
 
@@ -39,6 +41,7 @@ export interface JiraIssueDetail {
   status: string;
   type: string;
   services: ServiceCommits[];
+  url: string;
 }
 
 // Service types
@@ -58,6 +61,8 @@ export interface ServiceCommit {
   sha: string;
   jiraKey: string;
   createdAt: string;
+  author: string;
+  message: string;
   environments: Record<Environment, CommitEnvironmentStatus>;
 }
 
