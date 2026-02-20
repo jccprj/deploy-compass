@@ -1,6 +1,7 @@
 import { ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { CommitLink } from '@/components/CommitLink';
 import type { ExecutionStep } from '@/types/deployment';
 
 interface ExecutionPlanProps {
@@ -32,7 +33,7 @@ export function ExecutionPlan({ steps }: ExecutionPlanProps) {
               <TableCell className="font-medium">{step.order}</TableCell>
               <TableCell className="font-medium">{step.serviceName}</TableCell>
               <TableCell>
-                <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{step.sha}</code>
+                <CommitLink sha={step.sha} />
               </TableCell>
               <TableCell>
                 {step.pipelineId ? (

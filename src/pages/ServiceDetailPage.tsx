@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Loader2, ExternalLink, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { CommitLink } from '@/components/CommitLink';
 import {
   Table,
   TableBody,
@@ -40,9 +41,7 @@ function EffectiveCommitCard({
               {env}
             </p>
             {sha ? (
-              <code className="font-mono text-sm font-medium mt-1 block">
-                {sha}
-              </code>
+              <CommitLink sha={sha} />
             ) : (
               <span className="text-sm text-muted-foreground mt-1 block">
                 No deployment
@@ -160,9 +159,7 @@ export default function ServiceDetailPage() {
             {service.commits.map((commit) => (
               <TableRow key={commit.sha}>
                 <TableCell>
-                  <code className="font-mono text-sm bg-muted px-2 py-1 rounded">
-                    {commit.sha}
-                  </code>
+                  <CommitLink sha={commit.sha} />
                 </TableCell>
                 <TableCell>
                   <Link

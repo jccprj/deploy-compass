@@ -1,6 +1,7 @@
 import { CheckCircle, XCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { CommitLink } from '@/components/CommitLink';
 import type { ExpectedProdState as ProdState } from '@/types/deployment';
 
 interface ExpectedProdStateProps {
@@ -37,7 +38,7 @@ export function ExpectedProdState({ state }: ExpectedProdStateProps) {
               <TableCell>{s.serviceName}</TableCell>
               <TableCell>
                 {s.changed ? (
-                  <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{s.sha}</code>
+                  <CommitLink sha={s.sha} />
                 ) : (
                   <span className="text-xs text-muted-foreground italic">unchanged</span>
                 )}

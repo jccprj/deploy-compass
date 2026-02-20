@@ -593,6 +593,38 @@ export function getCommitEnvironmentDetail(sha: string, env: string): CommitEnvi
   return mockCommitDetails[`${sha}-${env}`] || null;
 }
 
+// Helper: lookup commit info (message, author, date, repo) by SHA
+export function getCommitInfo(sha: string): { message: string; author: string; date: string; repo: string } | null {
+  for (const [serviceName, detail] of Object.entries(mockServiceDetails)) {
+    for (const commit of detail.commits) {
+      if (commit.sha === sha) {
+        return {
+          message: commit.message,
+          author: commit.author,
+          date: commit.createdAt,
+          repo: serviceName,
+        };
+      }
+    }
+  }
+  // Also check jira issue detail commits
+  for (const detail of Object.values(mockJiraIssueDetails)) {
+    for (const svc of detail.services) {
+      for (const commit of svc.commits) {
+        if (commit.sha === sha) {
+          return {
+            message: commit.message,
+            author: commit.author,
+            date: commit.createdAt,
+            repo: svc.serviceName,
+          };
+        }
+      }
+    }
+  }
+  return null;
+}
+
 // ==========================================
 // Promotion Mock Data & Logic
 // ==========================================

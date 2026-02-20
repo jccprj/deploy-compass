@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { CheckCircle, AlertTriangle, XCircle, Loader2, ArrowUpDown, Filter } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Loader2, ArrowUpDown, Filter, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -60,6 +61,7 @@ export default function JiraListPage() {
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [filterType, setFilterType] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -77,9 +79,13 @@ export default function JiraListPage() {
     return issues.filter(i => {
       if (filterType !== 'all' && i.type !== filterType) return false;
       if (filterStatus !== 'all' && i.status !== filterStatus) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!i.key.toLowerCase().includes(q) && !i.title.toLowerCase().includes(q)) return false;
+      }
       return true;
     });
-  }, [issues, filterType, filterStatus]);
+  }, [issues, filterType, filterStatus, searchQuery]);
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -133,7 +139,16 @@ export default function JiraListPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative w-64">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by key or title..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
+        </div>
         <Filter className="h-4 w-4 text-muted-foreground" />
         <Select value={filterType} onValueChange={setFilterType}>
           <SelectTrigger className="w-36">

@@ -1,13 +1,16 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle, Info, X } from 'lucide-react';
+import { CheckCircle, Info, X, Search } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CommitLink } from '@/components/CommitLink';
 import { fetchJiraIssues, fetchServices, fetchPreprodCommitsForJira, fetchPreprodCommitForService } from '@/lib/api';
 import type { PromotionScope, ResolvedCommit } from '@/types/deployment';
 
@@ -20,7 +23,8 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
   const [scope, setScope] = useState<PromotionScope | ''>('');
   const [selectedJiras, setSelectedJiras] = useState<string[]>([]);
   const [selectedService, setSelectedService] = useState('');
-
+  const [jiraSearch, setJiraSearch] = useState('');
+  const [jiraPopoverOpen, setJiraPopoverOpen] = useState(false);
   const { data: jiraIssues } = useQuery({
     queryKey: ['jiraIssues'],
     queryFn: fetchJiraIssues,
@@ -61,12 +65,16 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
   const canAnalyze = resolvedCommits.length > 0;
 
   const availableJiras = useMemo(() => {
-    return jiraIssues?.filter(i => !selectedJiras.includes(i.key)) || [];
-  }, [jiraIssues, selectedJiras]);
+    const notSelected = jiraIssues?.filter(i => !selectedJiras.includes(i.key)) || [];
+    if (!jiraSearch) return notSelected;
+    const q = jiraSearch.toLowerCase();
+    return notSelected.filter(i => i.key.toLowerCase().includes(q) || i.title.toLowerCase().includes(q));
+  }, [jiraIssues, selectedJiras, jiraSearch]);
 
   const addJira = (key: string) => {
     if (key && !selectedJiras.includes(key)) {
       setSelectedJiras(prev => [...prev, key]);
+      setJiraSearch('');
     }
   };
 
@@ -120,19 +128,42 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
             </div>
           )}
 
-          {/* Add more */}
-          <Select value="" onValueChange={addJira}>
-            <SelectTrigger className="w-80">
-              <SelectValue placeholder="Add a Jira issue..." />
-            </SelectTrigger>
-            <SelectContent>
-              {availableJiras.map(issue => (
-                <SelectItem key={issue.key} value={issue.key}>
-                  {issue.key} — {issue.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Searchable Jira picker */}
+          <Popover open={jiraPopoverOpen} onOpenChange={setJiraPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-80 justify-start font-normal text-muted-foreground">
+                <Search className="h-4 w-4 mr-2" />
+                Add a Jira issue...
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-2" align="start">
+              <div className="relative mb-2">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by key or title..."
+                  value={jiraSearch}
+                  onChange={(e) => setJiraSearch(e.target.value)}
+                  className="pl-9"
+                  autoFocus
+                />
+              </div>
+              <div className="max-h-48 overflow-y-auto space-y-0.5">
+                {availableJiras.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-2">No issues found</p>
+                )}
+                {availableJiras.map(issue => (
+                  <button
+                    key={issue.key}
+                    onClick={() => { addJira(issue.key); setJiraPopoverOpen(false); }}
+                    className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-accent transition-colors"
+                  >
+                    <span className="font-mono font-medium">{issue.key}</span>
+                    <span className="text-muted-foreground ml-2">{issue.title}</span>
+                  </button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {jiraCommits.length > 0 && (
             <Card className="bg-muted/30">
@@ -153,7 +184,7 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
                     <CheckCircle className="h-4 w-4 text-status-ok" />
                     <span className="text-muted-foreground">{rc.serviceName}</span>
                     <span className="text-foreground">→</span>
-                    <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{rc.sha}</code>
+                    <CommitLink sha={rc.sha} />
                     {rc.jiraKey && (
                       <span className="text-xs text-muted-foreground">({rc.jiraKey})</span>
                     )}
@@ -191,7 +222,7 @@ export function ScopeSelector({ onAnalyze, isAnalyzing }: ScopeSelectorProps) {
                   <CheckCircle className="h-4 w-4 text-status-ok" />
                   <span className="text-muted-foreground">{serviceCommit.serviceName}</span>
                   <span className="text-foreground">→</span>
-                  <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{serviceCommit.sha}</code>
+                  <CommitLink sha={serviceCommit.sha} />
                 </div>
               </CardContent>
             </Card>
