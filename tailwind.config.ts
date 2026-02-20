@@ -69,6 +69,10 @@ export default {
           DEFAULT: "hsl(var(--status-error))",
           foreground: "hsl(var(--status-error-foreground))",
         },
+        "status-info": {
+          DEFAULT: "hsl(var(--status-info))",
+          foreground: "hsl(var(--status-info-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

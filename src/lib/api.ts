@@ -7,6 +7,7 @@ import {
   getPreprodCommitsForJira,
   getPreprodCommitForService,
   computeImpactAnalysis,
+  getMockCommitInfo
 } from './mock-data';
 import type {
   JiraIssue,
@@ -19,6 +20,7 @@ import type {
   ImpactAnalysis,
   ExecutionStep,
   ChangeMetadata,
+  CommitDetail,
 } from '@/types/deployment';
 
 // Toggle between mock data and real API
@@ -90,6 +92,31 @@ export async function fetchServiceDetail(serviceName: string): Promise<ServiceDe
     throw new Error(`Failed to fetch service detail: ${response.statusText}`);
   }
   return response.json();
+}
+
+
+// API 4.5 - Commit details
+export async function getCommitInfo(
+  sha: string
+): Promise<CommitDetail | null> {
+  if (useMockData) {
+    await delay(200);
+    return getMockCommitInfo(sha);
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/commits/${sha}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`Failed to fetch commit info: ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching commit info:', error);
+    throw error;
+  }
 }
 
 // API 5 — Commit Dependency Detail

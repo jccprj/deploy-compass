@@ -1,4 +1,4 @@
-import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { DeploymentStatus, DependencyStatus } from '@/types/deployment';
 
@@ -30,10 +30,20 @@ export function StatusIcon({
     );
   }
 
-  if (dependencyStatus === 'INCOMPATIBLE' || dependencyStatus === 'MISSING') {
+  
+  if (deploymentStatus === 'OVERWRITTEN') {
     return (
       <AlertTriangle
-        className={cn(sizeClasses[size], 'text-status-warning', className)}
+        className={cn(sizeClasses[size], 'text-status-error', className)}
+        aria-label="Deployed with dependency issues"
+      />
+    );
+  }
+
+  if (dependencyStatus === 'INCOMPATIBLE' || dependencyStatus === 'MISSING') {
+    return (
+      <AlertCircle
+        className={cn(sizeClasses[size], 'text-status-info', className)}
         aria-label="Deployed with dependency issues"
       />
     );

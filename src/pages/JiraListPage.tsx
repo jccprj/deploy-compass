@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { CheckCircle, AlertTriangle, XCircle, Loader2, ArrowUpDown, Filter, Search } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Loader2, ArrowUpDown, Filter, Search, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -27,10 +27,16 @@ function StateIcon({ state }: { state: EnvironmentState }) {
   if (state === 'OK') {
     return <CheckCircle className="h-5 w-5 text-status-ok mx-auto" />;
   }
+  
+  if (state === 'OVERWRITTEN') {
+    return <AlertTriangle className="h-5 w-5 text-status-warning mx-auto" />;
+  }
+
   if (state === 'NOT_DEPLOYED') {
     return <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />;
   }
-  return <AlertTriangle className="h-5 w-5 text-status-warning mx-auto" />;
+
+  return <AlertCircle className="h-5 w-5 text-status-info mx-auto" />;
 }
 
 function TypeBadge({ type }: { type: string }) {
@@ -72,7 +78,7 @@ export default function JiraListPage() {
     }
   };
 
-  const stateOrder: Record<EnvironmentState, number> = { OK: 0, INCOMPLETE: 1, NOT_DEPLOYED: 2 };
+  const stateOrder: Record<EnvironmentState, number> = { OK: 0, INCOMPLETE: 1, NOT_DEPLOYED: 2, OVERWRITTEN: 3 };
 
   const filtered = useMemo(() => {
     if (!issues) return [];

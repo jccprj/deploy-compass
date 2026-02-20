@@ -3,9 +3,9 @@ export const ENVIRONMENTS = ['QA', 'PPRD', 'PRD'] as const;
 export type Environment = typeof ENVIRONMENTS[number];
 
 // Status enums
-export type DeploymentStatus = 'DEPLOYED' | 'NOT_DEPLOYED';
+export type DeploymentStatus = 'DEPLOYED' | 'NOT_DEPLOYED' | 'OVERWRITTEN';
 export type DependencyStatus = 'OK' | 'INCOMPATIBLE' | 'MISSING';
-export type EnvironmentState = 'OK' | 'INCOMPLETE' | 'NOT_DEPLOYED';
+export type EnvironmentState = 'OK' | 'INCOMPLETE' | 'NOT_DEPLOYED' | 'OVERWRITTEN';
 
 // Jira Issue types
 export interface JiraIssue {
@@ -88,6 +88,15 @@ export interface CommitEnvironmentDetail {
   pipelineUrl?: string;
   deployedAt: string;
   dependencies: Dependency[];
+}
+
+// Commit Detail types
+export interface CommitDetail {
+  message: string;
+  author: string;
+  date: string;
+  repo: string;
+  htmlUrl: string;
 }
 
 // Promotion types

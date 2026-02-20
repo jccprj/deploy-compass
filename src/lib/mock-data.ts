@@ -4,6 +4,7 @@ import type {
   Service,
   ServiceDetail,
   CommitEnvironmentDetail,
+  CommitDetail,
 } from '@/types/deployment';
 
 // Mock Jira Issues List
@@ -17,7 +18,7 @@ export const mockJiraIssues: JiraIssue[] = [
     deployments: {
       QA: 'OK',
       PPRD: 'OK',
-      PRD: 'INCOMPLETE',
+      PRD: 'OVERWRITTEN',
     },
   },
   {
@@ -100,7 +101,7 @@ export const mockJiraIssueDetails: Record<string, JiraIssueDetail> = {
             createdAt: '2026-01-30',
             environments: {
               QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-              PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'INCOMPATIBLE' },
+              PPRD: { deploymentStatus: 'OVERWRITTEN', dependencyStatus: 'INCOMPATIBLE' },
               PRD: { deploymentStatus: 'NOT_DEPLOYED' },
             },
           },
@@ -502,8 +503,8 @@ export const mockServiceDetails: Record<string, ServiceDetail> = {
         createdAt: '2026-01-18',
         environments: {
           QA: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PPRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
-          PRD: { deploymentStatus: 'DEPLOYED', dependencyStatus: 'OK' },
+          PPRD: { deploymentStatus: 'OVERWRITTEN', dependencyStatus: 'OK' },
+          PRD: { deploymentStatus: 'NOT_DEPLOYED', dependencyStatus: 'OK' },
         },
       },
     ],
@@ -594,7 +595,7 @@ export function getCommitEnvironmentDetail(sha: string, env: string): CommitEnvi
 }
 
 // Helper: lookup commit info (message, author, date, repo) by SHA
-export function getCommitInfo(sha: string): { message: string; author: string; date: string; repo: string } | null {
+export function getMockCommitInfo(sha: string): CommitDetail | null {
   for (const [serviceName, detail] of Object.entries(mockServiceDetails)) {
     for (const commit of detail.commits) {
       if (commit.sha === sha) {
@@ -603,6 +604,7 @@ export function getCommitInfo(sha: string): { message: string; author: string; d
           author: commit.author,
           date: commit.createdAt,
           repo: serviceName,
+          htmlUrl: `https://github.com/org/${serviceName}/commit/${sha}`
         };
       }
     }
@@ -617,6 +619,7 @@ export function getCommitInfo(sha: string): { message: string; author: string; d
             author: commit.author,
             date: commit.createdAt,
             repo: svc.serviceName,
+            htmlUrl: `https://github.com/org/${svc.serviceName}/commit/${sha}`
           };
         }
       }

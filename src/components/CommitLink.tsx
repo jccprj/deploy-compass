@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { getCommitInfo } from '@/lib/mock-data';
+import { getCommitInfo } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import type { CommitDetail } from '@/types/deployment';
 
 interface CommitLinkProps {
   sha: string;
@@ -9,10 +11,39 @@ interface CommitLinkProps {
 }
 
 export function CommitLink({ sha, className }: CommitLinkProps) {
-  const info = getCommitInfo(sha);
-  const githubUrl = info
-    ? `https://github.com/org/${info.repo}/commit/${sha}`
-    : `https://github.com/search?q=${sha}&type=commits`;
+  const [info, setInfo] = useState<CommitDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCommitInfo = async () => {
+      try {
+        setLoading(true);
+        const result = await getCommitInfo(sha);
+        if (!cancelled) {
+          setInfo(result);
+        }
+      } catch (error) {
+        console.error('Error fetching commit info:', error);
+        if (!cancelled) {
+          setInfo(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchCommitInfo();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sha]);
+
+  const githubUrl = info?.htmlUrl;
 
   return (
     <HoverCard openDelay={200} closeDelay={100}>
@@ -32,7 +63,9 @@ export function CommitLink({ sha, className }: CommitLinkProps) {
         </a>
       </HoverCardTrigger>
       <HoverCardContent side="top" className="w-80 p-3">
-        {info ? (
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        ) : info ? (
           <div className="space-y-1.5">
             <p className="text-sm font-medium">{info.message}</p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
