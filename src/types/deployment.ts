@@ -122,6 +122,13 @@ export interface ValidationCheck {
   message?: string;
 }
 
+export interface EmbeddedCommit {
+  sha: string;
+  jiraKey?: string;
+  message?: string;
+  author?: string;
+}
+
 export interface ExecutionStep {
   order: number;
   serviceName: string;
@@ -132,6 +139,7 @@ export interface ExecutionStep {
   jiraKeys: string[];
   pipelineId?: string;
   pipelineUrl?: string;
+  embeddedCommits: EmbeddedCommit[]; // other commits riding along in this pipeline
 }
 
 export interface ExpectedProdState {
