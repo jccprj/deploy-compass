@@ -58,7 +58,7 @@ export function CommitLink({ sha, className }: CommitLinkProps) {
           )}
           onClick={(e) => e.stopPropagation()}
         >
-          {sha}
+          {sha?.substring(0, 7)}
           <ExternalLink className="h-3 w-3 text-muted-foreground" />
         </a>
       </HoverCardTrigger>

@@ -27,7 +27,7 @@ import type {
 
 // Toggle between mock data and real API
 const useMockData = true;
-const alertMockMethods = true; // Set to true to show alert for each mock API call
+const alertMockMethods = false; // Set to true to show alert for each mock API call
 
 // Base URL for the API
 const API_BASE_URL = 'http://localhost:5042';
@@ -141,8 +141,11 @@ export async function fetchCommitEnvironmentDetail(
       alert(`API 5 — Commit Dependency Detail for ${sha} in ${env}`);
     return getCommitEnvironmentDetail(sha, env);
   }
+  const url = `${API_BASE_URL}/api/commits/${sha}/environments/${env}`;
 
-  const response = await fetch(`${API_BASE_URL}/api/commits/${sha}/environments/${env}`);
+  //alert(url);
+
+  const response = await fetch(url);
   if (response.status === 404) {
     return null;
   }
@@ -161,7 +164,10 @@ export async function fetchPreprodCommitsForJira(jiraKey: string): Promise<Resol
     return getPreprodCommitsForJira(jiraKey);
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/commits/environment/PPRD/jira/${jiraKey}`);
+  const url = `${API_BASE_URL}/api/commits/environment/PPRD/jira/${jiraKey}`;
+
+  //alert(url);
+  const response = await fetch(url);
    if (response.status === 404) {
     return null;
   }
@@ -192,16 +198,48 @@ export async function fetchPreprodCommitForService(serviceName: string): Promise
 
 // API 7b — Promotion: Pipelines deployed to PPRD for a service
 export async function fetchPipelinesForService(serviceName: string): Promise<ServicePipeline[]> {
-  await delay(200);
-  return getPipelinesForService(serviceName);
+  if (useMockData)
+  {
+    await delay(200);
+    if (alertMockMethods)
+        alert(`API 7b — Promotion: Pipelines deployed to PPRD for service ${serviceName}`);
+    return getPipelinesForService(serviceName);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/services/${serviceName}/pipelines/PPRD`);
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`Failed to fetchPipelinesForService ${serviceName}: ${response.statusText}`);
+  }
+  return response.json();
 }
 
 // API 8 — Promotion: Analyze production impact
 export async function analyzeProductionImpact(commits: ResolvedCommit[]): Promise<ImpactAnalysis> {
-  await delay(400);
-  if (alertMockMethods)
-    alert('API 8 — Promotion: Analyze production impact');
-  return computeImpactAnalysis(commits);
+  console.log('Analyzing production impact for commits:', commits);
+
+  if (useMockData) {
+    await delay(400);
+    if (alertMockMethods)
+      alert('API 8 — Promotion: Analyze production impact');
+    return computeImpactAnalysis(commits);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/promotion/impact-analysis`, commits.length > 0 ? {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify( {commits}),
+  } : undefined);
+
+  if (!response.ok) {
+    throw new Error(`Failed to analyze production impact: ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 // API 9 — Promotion: Create production change
