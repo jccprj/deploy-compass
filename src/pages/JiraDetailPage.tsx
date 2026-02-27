@@ -122,17 +122,16 @@ export default function JiraDetailPage() {
                   </Link>
                 </TableCell>
                 <TableCell className="align-top">
-                  <div className="space-y-2">
+                  <div className="flex flex-col">
                     {service.commits.map((commit) => (
                       <div
                         key={commit.sha}
-                        className="flex items-center gap-2 text-sm"
+                        className="flex items-center gap-2 text-sm h-8"
                       >
                         <CommitLink sha={commit.sha} />
                         <span className="text-muted-foreground text-xs">
                           {commit.createdAt}
                         </span>
-
                         <span className="text-muted-foreground text-xs">
                           {commit.author}
                         </span>
@@ -142,7 +141,7 @@ export default function JiraDetailPage() {
                 </TableCell>
                 {ENVIRONMENTS.map((env) => (
                   <TableCell key={env} className="align-top">
-                    <div className="space-y-2 flex flex-col items-center">
+                    <div className="flex flex-col items-center">
                       {service.commits.map((commit) => {
                         const envStatus = commit.environments[env];
                         const isDeployed = envStatus.deploymentStatus === 'DEPLOYED';
@@ -153,7 +152,7 @@ export default function JiraDetailPage() {
                             sha={commit.sha}
                             environment={env}
                           >
-                            <button className="p-1 rounded hover:bg-muted transition-colors">
+                            <button className="h-8 flex items-center justify-center px-1 rounded hover:bg-muted transition-colors">
                               <StatusIcon
                                 deploymentStatus={envStatus.deploymentStatus}
                                 dependencyStatus={envStatus.dependencyStatus}
@@ -161,7 +160,7 @@ export default function JiraDetailPage() {
                             </button>
                           </DependencyPopover>
                         ) : (
-                          <div key={commit.sha} className="p-1">
+                          <div key={commit.sha} className="h-8 flex items-center justify-center px-1">
                             <StatusIcon
                               deploymentStatus={envStatus.deploymentStatus}
                               dependencyStatus={envStatus.dependencyStatus}
