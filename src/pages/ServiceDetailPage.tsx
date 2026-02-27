@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Loader2, ExternalLink, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, ExternalLink, CheckCircle, AlertTriangle, XCircle, GitBranch } from 'lucide-react';
 import { CommitLink } from '@/components/CommitLink';
 import {
   Table,
@@ -14,7 +14,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { StatusIcon } from '@/components/StatusIcon';
 import { DependencyPopover } from '@/components/DependencyPopover';
-import { fetchServiceDetail } from '@/lib/api';
+import { Badge } from '@/components/ui/badge';
+import { fetchServiceDetail, fetchPipelinesForService } from '@/lib/api';
 import { ENVIRONMENTS, type DependencyStatus, type Environment } from '@/types/deployment';
 import { cn } from '@/lib/utils';
 
@@ -67,6 +68,12 @@ export default function ServiceDetailPage() {
   const { data: service, isLoading } = useQuery({
     queryKey: ['service', serviceName],
     queryFn: () => fetchServiceDetail(serviceName!),
+    enabled: !!serviceName,
+  });
+
+  const { data: pipelines } = useQuery({
+    queryKey: ['pipelines', serviceName],
+    queryFn: () => fetchPipelinesForService(serviceName!),
     enabled: !!serviceName,
   });
 
@@ -139,6 +146,43 @@ export default function ServiceDetailPage() {
           })}
         </div>
       </div>
+
+      {/* Pipelines */}
+      {pipelines && pipelines.length > 0 && (
+        <div>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">
+            PPRD Pipelines
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {pipelines.map((p) => {
+              const deployedDate = new Date(p.deployedAt).toLocaleString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit',
+              });
+              return (
+                <Link key={p.pipelineId} to={`/services/${serviceName}/pipelines/${p.pipelineId}`}>
+                  <Card className="hover:border-primary/50 hover:shadow-md transition-all cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <GitBranch className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium text-sm">#{p.pipelineId}</span>
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          <CommitLink sha={p.sha} />
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {deployedDate}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Commits Table */}
       <div className="rounded-lg border bg-card">

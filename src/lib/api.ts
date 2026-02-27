@@ -9,6 +9,7 @@ import {
   computeImpactAnalysis,
   getMockCommitInfo,
   getPipelinesForService,
+  getPipelineDetail,
 } from './mock-data';
 import type {
   JiraIssue,
@@ -23,6 +24,7 @@ import type {
   ChangeMetadata,
   CommitDetail,
   ServicePipeline,
+  PipelineDetail,
 } from '@/types/deployment';
 
 // Toggle between mock data and real API
@@ -213,6 +215,19 @@ export async function fetchPipelinesForService(serviceName: string): Promise<Ser
   if (!response.ok) {
     throw new Error(`Failed to fetchPipelinesForService ${serviceName}: ${response.statusText}`);
   }
+  return response.json();
+}
+
+// API 7c — Pipeline Detail
+export async function fetchPipelineDetail(serviceName: string, pipelineId: string): Promise<PipelineDetail | null> {
+  if (useMockData) {
+    await delay(200);
+    return getPipelineDetail(serviceName, pipelineId);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/services/${serviceName}/pipelines/${pipelineId}`);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`Failed to fetch pipeline detail: ${response.statusText}`);
   return response.json();
 }
 
