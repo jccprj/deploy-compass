@@ -110,6 +110,24 @@ export interface ServicePipeline {
   serviceName: string;
 }
 
+export interface PipelineCommit {
+  sha: string;
+  jiraKey: string;
+  author: string;
+  message: string;
+  createdAt: string;
+  inProduction: boolean;
+}
+
+export interface PipelineDetail {
+  pipelineId: string;
+  pipelineUrl: string;
+  serviceName: string;
+  sha: string;
+  deployedAt: string;
+  commits: PipelineCommit[];
+}
+
 export interface ResolvedCommit {
   serviceName: string;
   sha: string;

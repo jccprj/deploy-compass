@@ -716,6 +716,43 @@ export function getPipelinesForService(serviceName: string): ServicePipeline[] {
   return mockServicePipelines[serviceName] || [];
 }
 
+import type { PipelineDetail, PipelineCommit } from '@/types/deployment';
+
+export function getPipelineDetail(serviceName: string, pipelineId: string): PipelineDetail | null {
+  const pipelines = mockServicePipelines[serviceName];
+  const pipeline = pipelines?.find(p => p.pipelineId === pipelineId);
+  if (!pipeline) return null;
+
+  const detail = mockServiceDetails[serviceName];
+  if (!detail) return null;
+
+  const prdSha = mockServices.find(s => s.serviceName === serviceName)?.effectiveCommits.PRD?.sha;
+
+  // Gather all commits that are part of this pipeline (deployed to PPRD, not yet the PRD effective)
+  const commits: PipelineCommit[] = detail.commits
+    .filter(c => {
+      const pprd = c.environments.PPRD;
+      return pprd && (pprd.deploymentStatus === 'DEPLOYED' || pprd.deploymentStatus === 'OVERWRITTEN');
+    })
+    .map(c => ({
+      sha: c.sha,
+      jiraKey: c.jiraKey,
+      author: c.author,
+      message: c.message,
+      createdAt: c.createdAt,
+      inProduction: c.sha === prdSha,
+    }));
+
+  return {
+    pipelineId: pipeline.pipelineId,
+    pipelineUrl: pipeline.pipelineUrl,
+    serviceName,
+    sha: pipeline.sha,
+    deployedAt: pipeline.deployedAt,
+    commits,
+  };
+}
+
 export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): ImpactAnalysis {
   const checks: ValidationCheck[] = [];
   const steps: ExecutionStep[] = [];
