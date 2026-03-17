@@ -22,10 +22,14 @@ function EffectiveCommitCard({
   env,
   sha,
   status,
+  runNumber,
+  runUrl
 }: {
   env: Environment;
   sha: string | null;
   status: DependencyStatus | null;
+  runNumber?: number;
+  runUrl?: string;
 }) {
   return (
     <Card
@@ -41,7 +45,27 @@ function EffectiveCommitCard({
               {env}
             </p>
             {sha ? (
-              <CommitLink sha={sha} />
+              
+              <><CommitLink sha={sha} />
+              <br/>
+              <br/>
+               <div className="flex items-center justify-between text-sm">
+                {runUrl ? (
+                  <a
+                    href={runUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-primary hover:underline"
+                  >
+                    Pipeline #{runNumber}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                ) : (
+                  <span>No deploy</span>
+                )}
+              </div>
+              </>
+              
             ) : (
               <span className="text-sm text-muted-foreground mt-1 block">
                 No deployment
@@ -134,6 +158,8 @@ export default function ServiceDetailPage() {
                 env={env}
                 sha={commit?.sha || null}
                 status={commit?.dependencyStatus || null}
+                runNumber={commit?.runNumber || null}
+                runUrl={commit?.runUrl || null}
               />
             );
           })}

@@ -83,18 +83,19 @@ export default function ServiceListPage() {
                       </span>
                       <div className="flex items-center gap-3">
                         {effectiveCommit ? (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3">                           
+                            
                             <CommitLink sha={effectiveCommit.sha} />
-                            {effectiveCommit.pipelineId && (
+                            {effectiveCommit.runNumber && (
                               <a
-                                href={effectiveCommit.pipelineUrl || '#'}
+                                href={effectiveCommit.runUrl || '#'}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
                                 className="flex items-center gap-1 text-xs text-primary hover:underline"
-                                title={`Pipeline #${effectiveCommit.pipelineId}`}
+                                title={`Pipeline #${effectiveCommit.runNumber}`}
                               >
-                                #{effectiveCommit.pipelineId}
+                                #{effectiveCommit.runNumber}
                                 <ExternalLink className="h-3 w-3" />
                               </a>
                             )}

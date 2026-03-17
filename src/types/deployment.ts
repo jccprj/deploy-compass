@@ -50,6 +50,8 @@ export interface EffectiveCommit {
   dependencyStatus: DependencyStatus;
   pipelineId?: string;
   pipelineUrl?: string;
+  runNumber?: number;
+  runUrl?: string;
 }
 
 export interface Service {
