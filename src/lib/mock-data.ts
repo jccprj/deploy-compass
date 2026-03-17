@@ -662,6 +662,7 @@ import type {
   ExecutionStep,
   ExpectedProdState,
   ImpactAnalysis,
+  EmbeddedCommit,
 } from '@/types/deployment';
 
 export function getPreprodCommitsForJira(jiraKey: string): ResolvedCommit[] {
@@ -713,6 +714,43 @@ export const mockServicePipelines: Record<string, ServicePipeline[]> = {
 
 export function getPipelinesForService(serviceName: string): ServicePipeline[] {
   return mockServicePipelines[serviceName] || [];
+}
+
+import type { PipelineDetail, PipelineCommit } from '@/types/deployment';
+
+export function getPipelineDetail(serviceName: string, pipelineId: string): PipelineDetail | null {
+  const pipelines = mockServicePipelines[serviceName];
+  const pipeline = pipelines?.find(p => p.pipelineId === pipelineId);
+  if (!pipeline) return null;
+
+  const detail = mockServiceDetails[serviceName];
+  if (!detail) return null;
+
+  const prdSha = mockServices.find(s => s.serviceName === serviceName)?.effectiveCommits.PRD?.sha;
+
+  // Gather all commits that are part of this pipeline (deployed to PPRD, not yet the PRD effective)
+  const commits: PipelineCommit[] = detail.commits
+    .filter(c => {
+      const pprd = c.environments.PPRD;
+      return pprd && (pprd.deploymentStatus === 'DEPLOYED' || pprd.deploymentStatus === 'OVERWRITTEN');
+    })
+    .map(c => ({
+      sha: c.sha,
+      jiraKey: c.jiraKey,
+      author: c.author,
+      message: c.message,
+      createdAt: c.createdAt,
+      inProduction: c.sha === prdSha,
+    }));
+
+  return {
+    pipelineId: pipeline.pipelineId,
+    pipelineUrl: pipeline.pipelineUrl,
+    serviceName,
+    sha: pipeline.sha,
+    deployedAt: pipeline.deployedAt,
+    commits,
+  };
 }
 
 export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): ImpactAnalysis {
@@ -774,8 +812,32 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
     });
   }
 
+  // Helper: find embedded commits for a service (commits between current PRD and target that aren't the target itself)
+  function getEmbeddedCommits(serviceName: string, targetSha: string, requestedJiraKeys: string[]): EmbeddedCommit[] {
+    const detail = mockServiceDetails[serviceName];
+    if (!detail) return [];
+    const prdSha = mockServices.find(s => s.serviceName === serviceName)?.effectiveCommits.PRD?.sha;
+    const embedded: EmbeddedCommit[] = [];
+    for (const commit of detail.commits) {
+      if (commit.sha === targetSha) continue;
+      if (commit.sha === prdSha) continue;
+      // This commit is between PRD and the target — it rides along
+      if (commit.environments.PPRD?.deploymentStatus === 'DEPLOYED' || commit.environments.PPRD?.deploymentStatus === 'OVERWRITTEN') {
+        embedded.push({
+          sha: commit.sha,
+          jiraKey: commit.jiraKey,
+          message: commit.message,
+          author: commit.author,
+        });
+      }
+    }
+    return embedded;
+  }
+
   // Build execution plan: dependencies first, then requested
   let order = 1;
+  const allRequestedJiraKeys = requestedCommits.map(r => r.jiraKey).filter(Boolean) as string[];
+
   for (const [, dep] of autoAdded) {
     const svcData = mockServices.find(s => s.serviceName === dep.serviceName);
     const pprdData = svcData?.effectiveCommits.PPRD;
@@ -789,6 +851,7 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
       jiraKeys: dep.jiraKey ? [dep.jiraKey] : [],
       pipelineId: pprdData?.pipelineId,
       pipelineUrl: pprdData?.pipelineUrl,
+      embeddedCommits: getEmbeddedCommits(dep.serviceName, dep.sha, allRequestedJiraKeys),
     });
   }
   for (const rc of requestedCommits) {
@@ -805,6 +868,7 @@ export function computeImpactAnalysis(requestedCommits: ResolvedCommit[]): Impac
         jiraKeys: rc.jiraKey ? [rc.jiraKey] : [],
         pipelineId: pprdData?.pipelineId,
         pipelineUrl: pprdData?.pipelineUrl,
+        embeddedCommits: getEmbeddedCommits(rc.serviceName, rc.sha, allRequestedJiraKeys),
       });
     }
   }
